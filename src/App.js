@@ -31,6 +31,8 @@ import FinancialReport from "./pages/FinancialReport";
 import Sidebar from "./components/layout/Sidebar";
 import StudentDetails from "./pages/adminDashboard/StudentDetails";
 import { useSelector } from "react-redux";
+import CreateTicket from "./pages/CreateTicket";
+import TicketList from "./pages/TicketList";
 
 function App() {
   const isLoggedIn = useSelector((state) => state.auth.token);
@@ -78,6 +80,8 @@ function App() {
           <Route path="/my-reports" element={<StudentReportList />} />
           <Route path="/student/university" element={<University />} />
           <Route path="/student/details" element={<StudentDetails />} />
+          <Route path="/create-ticket" element={<CreateTicket />} />
+          <Route path="/ticket-list" element={<TicketList />} />
         </Routes>
       </main>
       <Footer />
