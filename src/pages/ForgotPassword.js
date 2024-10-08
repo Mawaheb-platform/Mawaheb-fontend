@@ -4,15 +4,23 @@ const ForgotPassword = () => {
   const [email, setEmail] = useState("");
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
+
+  // validate email 
+  const validateEmail = (email) => {
+    const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return re.test(String(email).toLowerCase());
+  }
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setMessage("");
-    setError("");
-
+    if (!validateEmail(email)) {
+      setError("Invalid email address");
+      return;
+    }
     try {
       const response = await fetch(
-        `${process.env.REACT_APP_API_URL}/user/forgot-password`,
+        `${process.env.REACT_APP_API_URL}/auth/forgot-password`,
         {
           // Update this URL to match your backend
           method: "POST",
@@ -21,14 +29,21 @@ const ForgotPassword = () => {
           },
           body: JSON.stringify({ email }),
         }
-      );
-
-      const data = await response.json();
-      if (response.ok) {
-        setMessage(data.msg);
-      } else {
-        setError(data.msg || "Something went wrong");
-      }
+      )
+      .then((response) => {
+        if (!response.ok) {
+          if (response.status === 404) {
+            throw new Error("Email is not found!")
+          } else {
+            throw new Error("Server error")
+          }
+        }
+        return response.json();
+      })
+      .then((data) => {
+        setSuccess("Email sent Successfully!!")
+      })
+    
     } catch (error) {
       setError("Failed to send reset email");
     }

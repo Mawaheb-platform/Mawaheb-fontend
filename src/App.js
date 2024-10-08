@@ -7,7 +7,7 @@ import About from "./pages/About";
 import Profile from "./pages/Profile";
 import Contact from "./pages/Contact";
 import Login from "./pages/Login";
-import Register from "./pages/Register";
+import Signup from "./pages/Signup";
 // import StudentReport from "./pages/StudentReport";
 import StudentCourse from "./pages/Course";
 import StudentEvent from "./pages/Event";
@@ -33,6 +33,7 @@ import StudentDetails from "./pages/adminDashboard/StudentDetails";
 import { useSelector } from "react-redux";
 import CreateTicket from "./pages/CreateTicket";
 import TicketList from "./pages/TicketList";
+import NotFound from "./pages/404";
 
 function App() {
   const isLoggedIn = useSelector((state) => state.auth.token);
@@ -50,7 +51,7 @@ function App() {
           <Route path="/profile" element={<Profile />} />
           <Route path="/contact" element={<Contact />} />
           <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
+          <Route path="/signup" element={<Signup />} />
           {/* <Route path="/student/report" element={<StudentReport />} /> */}
           <Route path="/student/courses" element={<StudentCourse />} />
           <Route path="/student/events" element={<StudentEvent />} />
@@ -75,16 +76,17 @@ function App() {
             path="/student/financial-report"
             element={<FinancialReport />}
           />
-          <Route path="/reset-password" element={<ResetPassword />} />
+          <Route path="/reset-password/:token" element={<ResetPassword />} />
           <Route path="/student-report" element={<StudentReportPage />} />
           <Route path="/my-reports" element={<StudentReportList />} />
           <Route path="/student/university" element={<University />} />
           <Route path="/student/details" element={<StudentDetails />} />
           <Route path="/create-ticket" element={<CreateTicket />} />
           <Route path="/ticket-list" element={<TicketList />} />
+          <Route path="/*" element={<NotFound/>} />
         </Routes>
       </main>
-      <Footer />
+      {/* <Footer /> */}
     </div>
   );
 }

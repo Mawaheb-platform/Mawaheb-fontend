@@ -1,17 +1,20 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
-import PopupModal from "../components/ui/PopupModal";
+import { Link, useNavigate } from "react-router-dom";
 
-const Register = () => {
+const Signup = () => {
   const [formData, setFormData] = useState({
     name: "",
     email: "",
     password: "",
   });
-  const [showModal, setShowModal] = useState(false); // State for showing/hiding the modal
-  const [modalMessage, setModalMessage] = useState(""); // State for the modal message
-  const [registrationSuccess, setRegistrationSuccess] = useState(false); // State for tracking registration success
-  const [errorMessage, setErrorMessage] = useState("");
+  const navigate = useNavigate();
+  const [success, setSuccess] = useState(""); // State for tracking registration success
+  const [error, setError] = useState("");
+
+  const validateEmail = (email) => {
+    const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return re.test(String(email).toLowerCase());
+  };
 
   const handleChange = (e) => {
     setFormData({
@@ -22,9 +25,14 @@ const Register = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!validateEmail(formData.email)) {
+      setError("Invalid email address");
+      return;
+    }
+
     try {
       const response = await fetch(
-        `${process.env.REACT_APP_API_URL}/user/register`,
+        `${process.env.REACT_APP_API_URL}/auth/signup`,
         {
           method: "POST",
           headers: {
@@ -35,14 +43,10 @@ const Register = () => {
       );
       const data = await response.json();
       if (response.ok) {
-        // Registration successful, set success message and show modal
-        setModalMessage(data.msg);
-        setShowModal(true);
-        setRegistrationSuccess(true);
+        setSuccess("Signup successfully!!");
+        navigate("/login");
       } else {
-         // Registration failed, set error message and show modal
-         setModalMessage(data.errors.msg);
-         setShowModal(true);
+        setError(data.message || "An error occurred during signup!!");
       }
     } catch (error) {
       console.error("Error registering:", error);
@@ -55,6 +59,8 @@ const Register = () => {
         <h2 className="text-3xl font-semibold text-center text-darkGray mb-6">
           Register
         </h2>
+        {error && <div style={{ color: "red" }}>{error}</div>}
+        {success && <div style={{ color: "green" }}>{success}</div>}
         <form onSubmit={handleSubmit}>
           <div className="mb-4">
             <label
@@ -87,7 +93,7 @@ const Register = () => {
               onChange={handleChange}
               className="w-full px-3 py-2 rounded border border-gray-300 focus:outline-none focus:border-gold"
             />
-            {errorMessage && <p className="text-sm text-red-500">{errorMessage}</p>}
+            {/* {errorMessage && <p className="text-sm text-red-500">{errorMessage}</p>}/ */}
           </div>
           <div className="mb-4">
             <label
@@ -121,16 +127,8 @@ const Register = () => {
           </p>
         </div>
       </div>
-      {showModal && (
-        <PopupModal
-          message={modalMessage}
-          type={typeof modalMessage === 'string' && modalMessage.includes("success") ? "success" : "failed"}
-          button1={registrationSuccess}
-          onClose={() => setShowModal(false)}
-        />
-      )}
     </div>
   );
 };
 
-export default Register;
+export default Signup;

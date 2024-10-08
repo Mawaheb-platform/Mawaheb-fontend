@@ -13,17 +13,13 @@ const Login = () => {
     password: "",
   });
 
-  const [showModal, setShowModal] = useState(false);
-  const [modalMessage, setModalMessage] = useState("");
-  const [errorMessage, setErrorMessage] = useState("");
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState('');
 
-  const isMounted = useRef(true);
-
-  useEffect(() => {
-    return () => {
-      isMounted.current = false;
-    };
-  }, []);
+  const validateEmail = (email) => {
+    const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return re.test(String(email).toLowerCase());
+  };
 
   const handleChange = (e) => {
     setFormData({
@@ -34,8 +30,12 @@ const Login = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!validateEmail(formData.email)) {
+      setError("Invalid email address");
+      return;
+    }
     try {
-      const response = await fetch(`${process.env.REACT_APP_API_URL}/user/login`, {
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/auth/login`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -44,19 +44,13 @@ const Login = () => {
       });
       const data = await response.json();
       if (response.ok) {
-        if (isMounted.current) {
-          setModalMessage("Login successful");
-          setShowModal(true);
+          setSuccess("Login successfully!");
           const { token } = data;
           const user = { id: data.user.id, role: data.user.role, email: data.user.email };
           dispatch(login({ token, user }));
           navigate('/');
-        }
       } else {
-        if (isMounted.current) {
-          setModalMessage(data.message);
-          setShowModal(true);
-        }
+          setError(data.message || "An error occurred while login!");
       }
     } catch (error) {
       console.error("Error logging in:", error);
@@ -69,6 +63,8 @@ const Login = () => {
         <h2 className="text-3xl font-semibold text-center text-darkGray mb-6">
           Log In
         </h2>
+        {error && <div style={{ color: "red" }}>{error}</div>}
+        {success && <div style={{ color: "green" }}>{success}</div>}
         <form onSubmit={handleSubmit}>
           <div className="mb-4">
             <label
@@ -85,7 +81,6 @@ const Login = () => {
               onChange={handleChange}
               className="w-full px-3 py-2 rounded border border-gray-300 focus:outline-none focus:border-gold"
             />
-            {errorMessage && <p className="text-sm text-red-500">{errorMessage}</p>}
           </div>
           <div className="mb-4">
             <label
@@ -121,19 +116,12 @@ const Login = () => {
         <div className="mt-4 text-center">
           <p className="text-sm text-gray-700">
             Don't have an account?{" "}
-            <Link to="/register" className="text-gold">
+            <Link to="/signup" className="text-gold">
               Register here
             </Link>
           </p>
         </div>
       </div>
-      {showModal && (
-        <PopupModal
-          message={modalMessage}
-          type={typeof modalMessage === 'string' && modalMessage.includes("success") ? "success" : "failed"}
-          onClose={() => setShowModal(false)}
-        />
-      )}
     </div>
   );
 };

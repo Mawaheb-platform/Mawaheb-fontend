@@ -1,83 +1,110 @@
 // src/ResetPassword.js
 import React, { useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 
 function ResetPassword() {
   const { token } = useParams();
-  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState("");
+  const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [message, setMessage] = useState('');
+  const [success, setSuccess] = useState('');
   const [error, setError] = useState('');
-
-  const handleSubmit = async (e) => {
+  const navigate = useNavigate();
+  const handleResetPassword = async (e) => {
     e.preventDefault();
 
-    if (password !== confirmPassword) {
+    if (newPassword !== confirmPassword) {
       setError('Passwords do not match');
       return;
     }
 
     try {
-      const response = await fetch(`${process.env.REACT_APP_API_URL}/user/reset-password/${token}`, {
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/auth/reset-password/${token}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ password }),
+        body: JSON.stringify({ newPassword }),
       });
 
       const data = await response.json();
 
-      if (response.ok) {
-        setMessage(data.msg);
-        setError('');
+      if (!response.ok) {
+        // Handle server errors
+        setError(data.message || "Something went wrong");
+        navigate('/login');
       } else {
-        setMessage('');
-        setError(data.msg);
+        // Reset successful
+        setSuccess("Password reset successful!");
+        setEmail("");
+        setNewPassword("");
+        setConfirmPassword("");
       }
-    } catch (err) {
-      setMessage('');
-      setError('An error occurred while resetting the password.');
+    } catch (error) {
+      console.error("Error resetting password:", error);
+      setError("Failed to reset password. Please try again.");
     }
   };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <div className="bg-white p-8 rounded-lg shadow-lg w-full max-w-md">
-        <h2 className="text-2xl font-bold mb-6 text-center">Reset Password</h2>
-        {message && <div className="bg-green-100 text-green-700 p-4 mb-4 rounded">{message}</div>}
-        {error && <div className="bg-red-100 text-red-700 p-4 mb-4 rounded">{error}</div>}
-        <form onSubmit={handleSubmit} className="space-y-6">
+      <div className="bg-white p-8 rounded-lg shadow-md w-full max-w-md">
+        <h1 className="text-2xl font-semibold text-center mb-6 text-gray-800">
+          Reset Password
+        </h1>
+        {error && <p className="text-red-500 text-center mb-4">{error}</p>}
+        {success && <p className="text-green-500 text-center mb-4">{success}</p>}
+        <form onSubmit={handleResetPassword} className="space-y-6">
+          {/* Email Field */}
           <div>
-            <label htmlFor="password" className="block text-sm font-medium text-gray-700">
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Email
+            </label>
+            <input
+              type="email"
+              name="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+              className="block w-full px-4 py-2 border border-gray-300 rounded-lg text-gray-900 focus:ring-blue-500 focus:border-blue-500"
+            />
+          </div>
+
+          {/* New Password Field */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
               New Password
             </label>
             <input
               type="password"
-              id="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              name="password"
+              value={newPassword}
+              onChange={(e) => setNewPassword(e.target.value)}
               required
-              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+              className="block w-full px-4 py-2 border border-gray-300 rounded-lg text-gray-900 focus:ring-blue-500 focus:border-blue-500"
             />
           </div>
+
+          {/* Confirm Password Field */}
           <div>
-            <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700">
-              Confirm Password
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Confirm New Password
             </label>
             <input
               type="password"
-              id="confirmPassword"
+              name="confirmPassword"
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
               required
-              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+              className="block w-full px-4 py-2 border border-gray-300 rounded-lg text-gray-900 focus:ring-blue-500 focus:border-blue-500"
             />
           </div>
+
+          {/* Submit Button */}
           <div>
             <button
               type="submit"
-              className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-mutedGold focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+              className="w-full bg-blue-500 text-white py-2 px-4 rounded-lg hover:bg-blue-600 transition duration-300"
             >
               Reset Password
             </button>
