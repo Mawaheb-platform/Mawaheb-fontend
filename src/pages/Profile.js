@@ -1,8 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import defaultProfileImage from "../assets/images/No-profile-pic.jpg";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faEdit } from "@fortawesome/free-solid-svg-icons";
 import { FaLinkedin, FaGlobe } from "react-icons/fa";
 
 const ProfilePage = () => {
@@ -37,27 +35,18 @@ const ProfilePage = () => {
             },
           }
         );
-        if (!response.ok) {
-          throw new Error("Network response was not ok");
-        }
-
+        if (!response.ok) throw new Error("Failed to fetch profile.");
         const userData = await response.json();
         setProfile(userData.user);
       } catch (error) {
         console.error("Error fetching user profile:", error);
       }
     };
-
     fetchUserProfile();
   }, [token]);
 
-  const handleEdit = () => {
-    setEditMode(true);
-  };
-
-  const handleCancel = () => {
-    setEditMode(false);
-  };
+  const handleEdit = () => setEditMode(true);
+  const handleCancel = () => setEditMode(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -73,9 +62,7 @@ const ProfilePage = () => {
           body: JSON.stringify(profile),
         }
       );
-      if (!response.ok) {
-        throw new Error("Error updating profile");
-      }
+      if (!response.ok) throw new Error("Failed to update profile.");
       setEditMode(false);
     } catch (error) {
       console.error("Error updating profile:", error);
@@ -84,15 +71,10 @@ const ProfilePage = () => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setProfile({
-      ...profile,
-      [name]: value,
-    });
+    setProfile((prevProfile) => ({ ...prevProfile, [name]: value }));
   };
 
-  const handleImageChange = (e) => {
-    setProfileImage(e.target.files[0]);
-  };
+  const handleImageChange = (e) => setProfileImage(e.target.files[0]);
 
   return (
     <div className="max-w-6xl mx-auto p-8 bg-white shadow-lg rounded-lg relative">
@@ -111,99 +93,71 @@ const ProfilePage = () => {
                 type="file"
                 accept="image/*"
                 onChange={handleImageChange}
-                className="block w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-violet-50 file:text-violet-700 hover:file:bg-violet-100"
+                className="block w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:bg-violet-50 file:text-violet-700 hover:file:bg-violet-100"
               />
             </label>
           )}
-          <h2 className="text-4xl capitalize text-gold leading-10 font-bold mb-4 mt-4">
-            {profile.name}
-          </h2>
-          {editMode && (
-            <button
-              onClick={handleCancel}
-              className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 h-10 px-4 py-2 group bg-gold hover:bg-lightGold transition-all duration-200 ease-in-out hover:ring-2 hover:ring-offset-2 hover:ring-gold"
-            >
-              Cancel
-            </button>
-          )}
-          {!editMode && (
-            <button
-              onClick={handleEdit}
-              class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 h-10 px-4 py-2 group bg-gold hover:bg-lightGold transition-all duration-200 ease-in-out hover:ring-2 hover:ring-offset-2 hover:ring-gold"
-            >
-              Edit Profile
-            </button>
-          )}
+          <div>
+            <h2 className="text-4xl capitalize text-gold font-bold mt-4">
+              {profile.name}
+            </h2>
+            <div className="mb-6">
+              <p className="text-gray-600">{profile.email}</p>
+              <p className="text-gray-600">{profile.role}</p>
+            </div>
+          </div>
+          <div className="mt-4">
+            {editMode ? (
+              <button
+                onClick={handleCancel}
+                className="bg-red-500 hover:bg-red-600 text-white py-2 px-4 rounded"
+              >
+                Cancel
+              </button>
+            ) : (
+              <button
+                onClick={handleEdit}
+                className="bg-gold hover:bg-lightGold text-white py-2 px-4 rounded"
+              >
+                Edit Profile
+              </button>
+            )}
+          </div>
         </div>
+
         <div className="md:w-2/3 mt-4 md:mt-0 md:ml-8">
           <p className="text-lg text-gray-900 mb-4">{profile.bio}</p>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <label className="block text-sm font-medium text-gray-700">
-                Name
-              </label>
-              {!editMode ? (
-                <p className="mt-1 text-lg text-gray-900">{profile.name}</p>
-              ) : (
-                <input
-                  type="text"
-                  name="name"
-                  value={profile.name}
-                  onChange={handleChange}
-                  className="mt-1 block w-full px-3 py-2 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50"
-                />
-              )}
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700">
-                Email
-              </label>
-              {!editMode ? (
-                <p className="mt-1 text-lg text-gray-900">{profile.email}</p>
-              ) : (
-                <input
-                  type="email"
-                  name="email"
-                  value={profile.email}
-                  onChange={handleChange}
-                  className="mt-1 block w-full px-3 py-2 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50"
-                />
-              )}
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700">
-                Password
-              </label>
-              {!editMode ? (
-                <p className="mt-1 text-lg text-gray-900">••••••••</p>
-              ) : (
-                <input
-                  type="password"
-                  name="password"
-                  value={profile.password}
-                  onChange={handleChange}
-                  className="mt-1 block w-full px-3 py-2 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50"
-                />
-              )}
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700">
-                Phone Number
-              </label>
-              {!editMode ? (
-                <p className="mt-1 text-lg text-gray-900">
-                  {profile.phone_number}
-                </p>
-              ) : (
-                <input
-                  type="text"
-                  name="phone_number"
-                  value={profile.phone_number}
-                  onChange={handleChange}
-                  className="mt-1 block w-full px-3 py-2 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50"
-                />
-              )}
-            </div>
+          <form
+            onSubmit={handleSubmit}
+            className="grid grid-cols-1 md:grid-cols-2 gap-6"
+          >
+            {[
+              "name",
+              "password",
+              "phone_number",
+              "current_education_level",
+              "linkedin_link",
+              "website",
+            ].map((field) => (
+              <div key={field}>
+                <label className="block text-sm font-medium text-gray-700 capitalize">
+                  {field.replace("_", " ")}
+                </label>
+                {!editMode ? (
+                  <p className="mt-1 text-lg text-gray-900">
+                    {profile[field] || "N/A"}
+                  </p>
+                ) : (
+                  <input
+                    type={field === "password" ? "password" : "text"}
+                    name={field}
+                    value={profile[field]}
+                    onChange={handleChange}
+                    className="mt-1 block w-full px-3 py-2 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50"
+                  />
+                )}
+              </div>
+            ))}
             <div>
               <label className="block text-sm font-medium text-gray-700">
                 Date of Birth
@@ -218,11 +172,7 @@ const ProfilePage = () => {
                 <input
                   type="date"
                   name="date_of_birth"
-                  value={
-                    profile.date_of_birth
-                      ? profile.date_of_birth.toISOString().substr(0, 10)
-                      : ""
-                  }
+                  value={profile.date_of_birth?.substr(0, 10) || ""}
                   onChange={handleChange}
                   className="mt-1 block w-full px-3 py-2 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50"
                 />
@@ -233,7 +183,9 @@ const ProfilePage = () => {
                 Gender
               </label>
               {!editMode ? (
-                <p className="mt-1 text-lg text-gray-900">{profile.gender}</p>
+                <p className="mt-1 text-lg text-gray-900">
+                  {profile.gender || "N/A"}
+                </p>
               ) : (
                 <select
                   name="gender"
@@ -248,105 +200,17 @@ const ProfilePage = () => {
                 </select>
               )}
             </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700">
-                Current Education Level
-              </label>
-              {!editMode ? (
-                <p className="mt-1 text-lg text-gray-900">
-                  {profile.current_education_level}
-                </p>
-              ) : (
-                <input
-                  type="text"
-                  name="current_education_level"
-                  value={profile.current_education_level}
-                  onChange={handleChange}
-                  className="mt-1 block w-full px-3 py-2 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50"
-                />
-              )}
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700">
-                LinkedIn
-              </label>
-              {!editMode ? (
-                <a
-                  href={`https://www.linkedin.com/in/${profile.linkedin_link}`}
-                  className="mt-1 text-lg text-blue-600 flex items-center"
-                  target="_blank"
-                  rel="noopener noreferrer"
+            <div className="col-span-2 flex justify-end mt-4">
+              {editMode && (
+                <button
+                  type="submit"
+                  className="bg-green-500 hover:bg-green-600 text-white py-2 px-4 rounded"
                 >
-                  <FaLinkedin
-                    className="mr-2 text-blue-600 rounded-full bg-gray-100 p-1"
-                    size={32}
-                  />
-                  {profile.linkedin_link}
-                </a>
-              ) : (
-                <input
-                  type="text"
-                  name="linkedin_link"
-                  value={profile.linkedin_link}
-                  onChange={handleChange}
-                  className="mt-1 block w-full px-3 py-2 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50"
-                />
+                  Save Changes
+                </button>
               )}
             </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700">
-                Website
-              </label>
-              {!editMode ? (
-                <a
-                  href={profile.website}
-                  className="mt-1 text-lg text-blue-600 flex items-center"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  <FaGlobe
-                    className="mr-2 text-blue-600 rounded-full bg-gray-100 p-1"
-                    size={32}
-                  />
-                  {profile.website}
-                </a>
-              ) : (
-                <input
-                  type="text"
-                  name="website"
-                  value={profile.website}
-                  onChange={handleChange}
-                  className="mt-1 block w-full px-3 py-2 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50"
-                />
-              )}
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700">
-                User Role
-              </label>
-              {!editMode ? (
-                <p className="mt-1 text-lg text-gray-900">{profile.role}</p>
-              ) : (
-                <input
-                  type="text"
-                  name="role"
-                  value={profile.role}
-                  onChange={handleChange}
-                  className="mt-1 block w-full px-3 py-2 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50"
-                />
-              )}
-            </div>
-          </div>
-          {editMode && (
-            <div className="mt-4">
-              <button
-                onClick={handleSubmit}
-                className="bg-gold text-white hover:bg-mutedGold px-4 py-2 rounded-md"
-              >
-                Save Changes
-              </button>
-            </div>
-          )}
+          </form>
         </div>
       </div>
     </div>

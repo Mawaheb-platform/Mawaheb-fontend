@@ -35,7 +35,7 @@ function ResetPassword() {
         navigate('/login');
       } else {
         // Reset successful
-        setSuccess("Password reset successful!");
+        setSuccess("Password reset successful! Go to login within your new password");
         setEmail("");
         setNewPassword("");
         setConfirmPassword("");

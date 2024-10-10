@@ -2,7 +2,6 @@ import React, { useState } from "react";
 
 const ForgotPassword = () => {
   const [email, setEmail] = useState("");
-  const [message, setMessage] = useState("");
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
 
@@ -53,10 +52,10 @@ const ForgotPassword = () => {
     <div className="min-h-screen flex items-center justify-center bg-gray-100">
       <div className="max-w-md w-full bg-white p-8 shadow-md rounded-lg">
         <h2 className="text-2xl font-bold mb-6 text-gray-700 text-center">
-          Forgot Password
+          Reset Your Password
         </h2>
-        {message && <div className="mb-4 text-green-600">{message}</div>}
         {error && <div className="mb-4 text-red-600">{error}</div>}
+        {success && <div className="mb-4 text-green-600">{success}</div>}
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="mb-4">
             <label
@@ -81,7 +80,6 @@ const ForgotPassword = () => {
             Send Reset Link
           </button>
         </form>
-        {message && <p className="mt-4 text-green-600">{message}</p>}
       </div>
     </div>
   );
