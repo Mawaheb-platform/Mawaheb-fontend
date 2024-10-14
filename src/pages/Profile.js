@@ -2,217 +2,197 @@ import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import defaultProfileImage from "../assets/images/No-profile-pic.jpg";
 import { FaLinkedin, FaGlobe } from "react-icons/fa";
+import EditProfileModal from "../components/common/EditProfileModal";
 
 const ProfilePage = () => {
-  const [profile, setProfile] = useState({
-    imageUrl: "",
-    name: "",
-    email: "",
-    password: "",
-    bio: "",
-    phone_number: "",
-    date_of_birth: "",
-    gender: "",
-    current_education_level: "",
-    linkedin_link: "",
-    website: "",
-    role: "",
-  });
-  const [profileImage, setProfileImage] = useState(null);
-  const [editMode, setEditMode] = useState(false);
+  const [profile, setProfile] = useState(null);
+  console.log("this is profile data: ", profile)
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const token = useSelector((state) => state.auth.token);
+
+// to visualize the style without calling backend we may use 
+// useEffect(() => {
+//   const mockProfile = {
+//     imageUrl: "",
+//     name: "Nasser Hussein",
+//     email: "*****@example.com",
+//     university: "ABC University",
+//     department: "Engineering",
+//     gpa: "3.9",
+//     certificates: 8,
+//     courses: 12,
+//     events: 5,
+//     achievements: 10,
+//     bio: "Passionate about software development and open-source projects.",
+//     phone_number: "123-456-7890",
+//     date_of_birth: "1995-05-15",
+//     gender: "Male",
+//     current_education_level: "Nasser Hussein",
+//     linkedin_link: "https://www.linkedin.com/in/nhussein2026",
+//     website: "https://nhussein.io",
+//     role: "Student",
+//   };
+//   setProfile(mockProfile);
+//   setLoading(false);
+// }, []);
 
   useEffect(() => {
     const fetchUserProfile = async () => {
       try {
-        const response = await fetch(
-          `${process.env.REACT_APP_API_URL}/user/profile`,
-          {
-            method: "GET",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
+        const response = await fetch(`${process.env.REACT_APP_API_URL}/user/profile`, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        });
         if (!response.ok) throw new Error("Failed to fetch profile.");
         const userData = await response.json();
         setProfile(userData.user);
       } catch (error) {
         console.error("Error fetching user profile:", error);
+        setError(error.message);
+      } finally {
+        setLoading(false);
       }
     };
-    fetchUserProfile();
+    if (token) {
+      fetchUserProfile();
+    }
   }, [token]);
 
-  const handleEdit = () => setEditMode(true);
-  const handleCancel = () => setEditMode(false);
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const handleSaveProfile = async (updatedProfile) => {
     try {
-      const response = await fetch(
-        `${process.env.REACT_APP_API_URL}/user/update-profile`,
-        {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify(profile),
-        }
-      );
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/user/update-profile`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(updatedProfile),
+      });
       if (!response.ok) throw new Error("Failed to update profile.");
-      setEditMode(false);
+      const data = await response.json();
+      setProfile(data.user);
+      setIsEditModalOpen(false);
     } catch (error) {
       console.error("Error updating profile:", error);
+      alert("Failed to update profile. Please try again.");
     }
   };
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setProfile((prevProfile) => ({ ...prevProfile, [name]: value }));
-  };
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <p className="text-lg text-gray-700">Loading...</p>
+      </div>
+    );
+  }
 
-  const handleImageChange = (e) => setProfileImage(e.target.files[0]);
+  if (error || !profile) {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <p className="text-lg text-red-500">Failed to load profile information.</p>
+      </div>
+    );
+  }
 
   return (
-    <div className="max-w-6xl mx-auto p-8 bg-white shadow-lg rounded-lg relative">
-      <div className="flex flex-col md:flex-row items-center md:items-start">
-        <div className="flex flex-col items-center md:items-start md:w-1/3">
+    <div className="max-w-6xl mx-auto p-6 bg-white shadow-lg rounded-lg">
+      <div className="flex flex-col md:flex-row">
+        {/* Left Side - Profile Details */}
+        <div className="md:w-1/3 flex flex-col items-center md:items-start">
           <img
-            className="h-48 w-48 object-cover shadow-md rounded-full"
             src={profile.imageUrl || defaultProfileImage}
-            alt={profile.name || "Profile Image"}
-            onError={(e) => (e.target.src = defaultProfileImage)}
+            alt={`${profile.name}'s Profile`}
+            className="w-32 h-32 rounded-full object-cover shadow-md"
           />
-          {editMode && (
-            <label className="block mt-4">
-              <span className="sr-only">Choose profile photo</span>
-              <input
-                type="file"
-                accept="image/*"
-                onChange={handleImageChange}
-                className="block w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:bg-violet-50 file:text-violet-700 hover:file:bg-violet-100"
-              />
-            </label>
-          )}
-          <div>
-            <h2 className="text-4xl capitalize text-gold font-bold mt-4">
-              {profile.name}
-            </h2>
-            <div className="mb-6">
-              <p className="text-gray-600">{profile.email}</p>
-              <p className="text-gray-600">{profile.role}</p>
-            </div>
-          </div>
-          <div className="mt-4">
-            {editMode ? (
-              <button
-                onClick={handleCancel}
-                className="bg-red-500 hover:bg-red-600 text-white py-2 px-4 rounded"
+          <h2 className="mt-4 text-2xl font-semibold text-gray-800">{profile.name}</h2>
+          <p className="text-gray-600">{profile.email}</p>
+          <p className="text-gray-600 mt-2">
+            <strong>Role:</strong> {profile.role || "N/A"}
+          </p>
+          <p className="text-gray-600 mt-2">
+            <strong>University:</strong> {profile.university || "N/A"}
+          </p>
+          <p className="text-gray-600">
+            <strong>Department:</strong> {profile.department || "N/A"}
+          </p>
+          <p className="text-gray-600">
+            <strong>GPA:</strong> {profile.gpa || "N/A"}
+          </p>
+          {/* LinkedIn and Website Links */}
+          <div className="flex mt-4 space-x-4">
+            {profile.linkedin_link && (
+              <a
+                href={profile.linkedin_link}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-blue-600 hover:text-blue-800"
               >
-                Cancel
-              </button>
-            ) : (
-              <button
-                onClick={handleEdit}
-                className="bg-gold hover:bg-lightGold text-white py-2 px-4 rounded"
-              >
-                Edit Profile
-              </button>
+                <FaLinkedin size={24} />
+              </a>
             )}
+            {profile.website && (
+              <a
+                href={profile.website}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-green-600 hover:text-green-800"
+              >
+                <FaGlobe size={24} />
+              </a>
+            )}
+          </div>
+          {/* Edit Profile Button */}
+          <div className="mt-6">
+            <button
+              onClick={() => setIsEditModalOpen(true)}
+              className="bg-gold hover:bg-mutedGold text-white py-2 px-4 rounded-md"
+            >
+              Edit Profile
+            </button>
           </div>
         </div>
 
-        <div className="md:w-2/3 mt-4 md:mt-0 md:ml-8">
-          <p className="text-lg text-gray-900 mb-4">{profile.bio}</p>
-          <form
-            onSubmit={handleSubmit}
-            className="grid grid-cols-1 md:grid-cols-2 gap-6"
-          >
-            {[
-              "name",
-              "password",
-              "phone_number",
-              "current_education_level",
-              "linkedin_link",
-              "website",
-            ].map((field) => (
-              <div key={field}>
-                <label className="block text-sm font-medium text-gray-700 capitalize">
-                  {field.replace("_", " ")}
-                </label>
-                {!editMode ? (
-                  <p className="mt-1 text-lg text-gray-900">
-                    {profile[field] || "N/A"}
-                  </p>
-                ) : (
-                  <input
-                    type={field === "password" ? "password" : "text"}
-                    name={field}
-                    value={profile[field]}
-                    onChange={handleChange}
-                    className="mt-1 block w-full px-3 py-2 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50"
-                  />
-                )}
-              </div>
-            ))}
-            <div>
-              <label className="block text-sm font-medium text-gray-700">
-                Date of Birth
-              </label>
-              {!editMode ? (
-                <p className="mt-1 text-lg text-gray-900">
-                  {profile.date_of_birth
-                    ? new Date(profile.date_of_birth).toLocaleDateString()
-                    : "N/A"}
-                </p>
-              ) : (
-                <input
-                  type="date"
-                  name="date_of_birth"
-                  value={profile.date_of_birth?.substr(0, 10) || ""}
-                  onChange={handleChange}
-                  className="mt-1 block w-full px-3 py-2 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50"
-                />
-              )}
+        {/* Right Side - Achievements */}
+        <div className="md:w-2/3 mt-6 md:mt-0 md:ml-8">
+          <h3 className="text-xl font-semibold text-gray-800 mb-4">Achievements</h3>
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+            {/* Certificate Count */}
+            <div className="bg-gray-100 p-4 rounded-lg shadow">
+              <p className="text-3xl font-bold text-gold">{profile.certificates || 0}</p>
+              <p className="text-gray-700 mt-2">Certificates</p>
             </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700">
-                Gender
-              </label>
-              {!editMode ? (
-                <p className="mt-1 text-lg text-gray-900">
-                  {profile.gender || "N/A"}
-                </p>
-              ) : (
-                <select
-                  name="gender"
-                  value={profile.gender}
-                  onChange={handleChange}
-                  className="mt-1 block w-full px-3 py-2 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50"
-                >
-                  <option value="">Select Gender</option>
-                  <option value="Male">Male</option>
-                  <option value="Female">Female</option>
-                  <option value="Other">Other</option>
-                </select>
-              )}
+            {/* Courses Count */}
+            <div className="bg-gray-100 p-4 rounded-lg shadow">
+              <p className="text-3xl font-bold text-gold">{profile.courses || 0}</p>
+              <p className="text-gray-700 mt-2">Courses</p>
             </div>
-            <div className="col-span-2 flex justify-end mt-4">
-              {editMode && (
-                <button
-                  type="submit"
-                  className="bg-green-500 hover:bg-green-600 text-white py-2 px-4 rounded"
-                >
-                  Save Changes
-                </button>
-              )}
+            {/* Events Count */}
+            <div className="bg-gray-100 p-4 rounded-lg shadow">
+              <p className="text-3xl font-bold text-gold">{profile.events || 0}</p>
+              <p className="text-gray-700 mt-2">Events</p>
             </div>
-          </form>
+            {/* Achievements Count */}
+            <div className="bg-gray-100 p-4 rounded-lg shadow">
+              <p className="text-3xl font-bold text-gold">{profile.achievements || 0}</p>
+              <p className="text-gray-700 mt-2">Achievements</p>
+            </div>
+            {/* Add more achievement cards as needed */}
+          </div>
         </div>
       </div>
+
+      {/* Edit Profile Modal */}
+      <EditProfileModal
+        isOpen={isEditModalOpen}
+        onClose={() => setIsEditModalOpen(false)}
+        profile={profile}
+        onSave={handleSaveProfile}
+      />
     </div>
   );
 };

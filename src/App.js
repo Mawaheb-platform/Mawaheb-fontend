@@ -34,6 +34,7 @@ import { useSelector } from "react-redux";
 import CreateTicket from "./pages/CreateTicket";
 import TicketList from "./pages/TicketList";
 import NotFound from "./pages/404";
+import ProfileComponent from "./pages/NewProfile";
 
 function App() {
   const isLoggedIn = useSelector((state) => state.auth.token);
@@ -49,6 +50,7 @@ function App() {
           <Route path="/" exact element={<Home />} />
           <Route path="/about" element={<About />} />
           <Route path="/profile" element={<Profile />} />
+          <Route path="/pro" element={<ProfileComponent />} />
           <Route path="/contact" element={<Contact />} />
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
