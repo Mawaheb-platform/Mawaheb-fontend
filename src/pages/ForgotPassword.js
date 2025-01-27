@@ -19,7 +19,7 @@ const ForgotPassword = () => {
     }
     try {
       const response = await fetch(
-        `${process.env.REACT_APP_API_URL}/auth/forgot-password`,
+        `${process.env.REACT_APP_API_URL}/auth/forgot-Password`,
         {
           // Update this URL to match your backend
           method: "POST",

@@ -4,7 +4,7 @@ import { Route, Routes } from "react-router-dom";
 import Footer from "./components/layout/Footer";
 import Home from "./pages/Home";
 import About from "./pages/About";
-import Profile from "./pages/Profile";
+import Profile from "./components/profile/Profile";
 import Contact from "./pages/Contact";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
@@ -35,22 +35,26 @@ import CreateTicket from "./pages/CreateTicket";
 import TicketList from "./pages/TicketList";
 import NotFound from "./pages/404";
 import ProfileComponent from "./pages/NewProfile";
+import Test from "./components/profile/Profile";
+
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 function App() {
   const isLoggedIn = useSelector((state) => state.auth.token);
   // const userRole = useSelector((state) => state.auth.user.role);
-
 
   return (
     <div className="flex flex-col min-h-screen">
       <Header />
       <main className="flex-1">
         <Routes>
-        {/* must have if else statement to handle 404 page if user play with slug or did not have permission to open specific page */}
+          {/* must have if else statement to handle 404 page if user play with slug or did not have permission to open specific page */}
           <Route path="/" exact element={<Home />} />
           <Route path="/about" element={<About />} />
           <Route path="/profile" element={<Profile />} />
-          <Route path="/pro" element={<ProfileComponent />} />
+          <Route path="/pro" element={<Test />} />
+          <Route path="/test" element={<ProfileComponent />} />
           <Route path="/contact" element={<Contact />} />
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
@@ -85,10 +89,11 @@ function App() {
           <Route path="/student/details" element={<StudentDetails />} />
           <Route path="/create-ticket" element={<CreateTicket />} />
           <Route path="/ticket-list" element={<TicketList />} />
-          <Route path="/*" element={<NotFound/>} />
+          <Route path="/*" element={<NotFound />} />
         </Routes>
       </main>
       {/* <Footer /> */}
+      <ToastContainer />
     </div>
   );
 }
