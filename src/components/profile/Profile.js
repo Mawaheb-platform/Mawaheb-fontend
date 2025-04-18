@@ -1,7 +1,19 @@
-import { useEffect, useState } from "react";
-import CommonSection from "./CommonSection";
+import {
+  PlusIcon,
+  DocumentIcon,
+  CalendarIcon,
+  BookOpenIcon,
+  TrophyIcon,
+} from "@heroicons/react/24/outline";
+import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { toast } from "react-toastify";
+import {
+  ShieldCheckIcon,
+  BriefcaseIcon,
+  AcademicCapIcon,
+  BanknotesIcon,
+} from "@heroicons/react/24/solid";
 
 const Profile = () => {
   const token = useSelector((state) => state.auth.token);
@@ -37,88 +49,208 @@ const Profile = () => {
     }
   }, [token]);
 
+  // New role display component
+  const RoleBadge = ({ role }) => {
+    const roleConfig = {
+      Admin: {
+        color: "bg-red-100 text-red-800",
+        icon: <ShieldCheckIcon className="w-4 h-4 mr-1" />,
+      },
+      Employee: {
+        color: "bg-blue-100 text-blue-800",
+        icon: <BriefcaseIcon className="w-4 h-4 mr-1" />,
+      },
+      "Institute Student": {
+        color: "bg-green-100 text-green-800",
+        icon: <AcademicCapIcon className="w-4 h-4 mr-1" />,
+      },
+      "Scholarship Student": {
+        color: "bg-purple-100 text-purple-800",
+        icon: <BanknotesIcon className="w-4 h-4 mr-1" />,
+      },
+    };
+
+    const config = roleConfig[role] || { color: "bg-gray-100 text-gray-800" };
+
+    return (
+      <span
+        className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${
+          config.color
+        } ${role ? "mt-2 md:mt-0" : ""}`}
+      >
+        {config.icon}
+        {role}
+      </span>
+    );
+  };
+
   return (
-    <div className="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-3xl mx-auto">
-        <CommonSection profile={profile} />
-
-        {profile?.user?.role === "Employee" && (
-          <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-            <h2 className="text-xl font-semibold text-gray-800 mb-4 border-b pb-2">
-              Employment Details
-            </h2>
-            <div className="space-y-2">
-              <p className="text-gray-600">
-                <span className="font-medium">Job Title:</span>{" "}
-                {profile.job_title}
-              </p>
+    <div className="min-h-screen bg-veryLightGray p-4 md:p-8">
+      {/* Profile Header */}
+      <div className="bg-white rounded-2xl shadow-lg p-6 mb-6">
+        <div className="flex flex-col md:flex-row items-center gap-6">
+          <div className="w-32 h-32 rounded-full bg-maroon flex items-center justify-center text-white text-4xl font-bold">
+            {profile?.user.name[0]}
+          </div>
+          <div className="flex-1 text-center md:text-left space-y-2">
+            <div className="flex flex-col md:flex-row items-center gap-2">
+              <h1 className="text-2xl md:text-3xl font-bold text-darkMaroon">
+                {profile?.user.name}
+              </h1>
+              <RoleBadge role={profile?.user.role} />
+              <span className="text-gold text-xl hidden md:inline-block">
+                ★
+              </span>
+            </div>
+            <p className="text-mediumGray text-base md:text-lg">
+              {profile?.program_of_study || "Program not available"} Student at{" "}
+              {profile?.university?.name || "University not available"}
+            </p>
+            <div className="flex flex-wrap justify-center md:justify-start gap-2">
+              <StatBadge
+                count={profile?.certificates?.length}
+                label="Certificates"
+                className="text-sm"
+              />
+              <StatBadge
+                count={profile?.courses?.length}
+                label="Courses"
+                className="text-sm"
+              />
+              <StatBadge
+                count={profile?.events?.length}
+                label="Events"
+                className="text-sm"
+              />
+              <StatBadge
+                count={profile?.achievements?.length}
+                label="Achievements"
+                className="text-sm"
+              />
             </div>
           </div>
-        )}
+        </div>
+      </div>
 
-        {profile?.user?.role === "Institute Student" && (
-          <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-            <h2 className="text-xl font-semibold text-gray-800 mb-4 border-b pb-2">
-              Education Details
-            </h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <p className="text-gray-600">
-                  <span className="font-medium">Talent:</span> {profile.talent}
-                </p>
-              </div>
-              <div>
-                <p className="text-gray-600">
-                  <span className="font-medium">Parent Phone:</span>{" "}
-                  {profile.parent_phone}
-                </p>
-              </div>
-            </div>
-          </div>
-        )}
+      {/* Main Content Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        {/* Academic Details Section */}
+        <div className="md:col-span-2 space-y-6">
+          <SectionCard title="Academic Information">
+            <DetailItem
+              label="University ID"
+              value={profile?.student_university_id}
+            />
+            <DetailItem
+              label="Enrollment Year"
+              value={profile?.enrollment_year}
+            />
+            <DetailItem
+              label="Expected Graduation"
+              value={profile?.expected_graduation_year || "Not Available"}
+            />
+            <DetailItem
+              label="University Type"
+              value={profile?.type_of_university}
+            />
+            <DetailItem
+              label="Location"
+              value={`${profile?.city}, ${profile?.country_of_studying}`}
+            />
+          </SectionCard>
 
-        {profile?.user?.role === "Scholarship Student" && (
-          <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-            <h2 className="text-xl font-semibold text-gray-800 mb-4 border-b pb-2">
-              Scholarship Details
-            </h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <p className="text-gray-600">
-                  <span className="font-medium">University:</span>{" "}
-                  {profile.university?.name}
-                </p>
-                <p className="text-gray-600">
-                  <span className="font-medium">Program:</span>{" "}
-                  {profile.program_of_study}
-                </p>
-              </div>
-              <div>
-                <p className="text-gray-600">
-                  <span className="font-medium">Enrollment Year:</span>{" "}
-                  {profile.enrollment_year}
-                </p>
-                <p className="text-gray-600">
-                  <span className="font-medium">Graduation Year:</span>{" "}
-                  {profile.expected_graduation_year}
-                </p>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {profile?.user?.role === "Admin" && (
-          <div className="bg-white rounded-lg shadow-md p-6">
-            <h2 className="text-xl font-semibold text-gray-800 mb-4 border-b pb-2">
-              Administrator Tools
-            </h2>
-            <button className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors">
-              To use All Admin Properties Click to forward to admin dashboard
+          <SectionCard title="Academic Journey">
+            <Timeline>
+              {profile?.academicTimeline?.map((event, index) => (
+                <TimelineItem
+                  key={index}
+                  date={event.date}
+                  title={event.title}
+                  description={event.description}
+                />
+              ))}
+            </Timeline>
+            <button className="text-gold hover:text-darkMaroon mt-4 flex items-center">
+              <PlusIcon className="w-5 h-5 mr-1" />
+              Add Milestone
             </button>
-          </div>
-        )}
+          </SectionCard>
+        </div>
+
+        {/* Achievements & Quick Actions */}
+        <div className="space-y-6">
+          <SectionCard title="Featured Achievements">
+            <div className="space-y-4">
+              {profile?.achievements?.map((achievement, index) => (
+                <AchievementBadge
+                  key={index}
+                  title={achievement.title}
+                  date={achievement.date}
+                />
+              ))}
+              <button className="w-full py-2 bg-lightGold hover:bg-gold text-darkMaroon rounded-lg transition-all">
+                Add New Achievement
+              </button>
+            </div>
+          </SectionCard>
+
+          <SectionCard title="Quick Links">
+            <div className="grid grid-cols-2 gap-3">
+              <ActionButton icon={<DocumentIcon />} label="My Certificates" />
+              <ActionButton icon={<CalendarIcon />} label="Events" />
+              <ActionButton icon={<BookOpenIcon />} label="Courses" />
+              <ActionButton icon={<TrophyIcon />} label="Achievements" />
+            </div>
+          </SectionCard>
+        </div>
       </div>
     </div>
   );
 };
 export default Profile;
+
+// Helper Components
+const StatBadge = ({ count, label }) => (
+  <div className="bg-lightGold px-3 py-1 md:px-4 md:py-2 rounded-full text-sm md:text-base">
+    <span className="text-darkMaroon font-bold">{count || 0}</span>
+    <span className="text-mediumGray ml-1 md:ml-2">{label}</span>
+  </div>
+);
+
+const SectionCard = ({ title, children }) => (
+  <div className="bg-white rounded-xl shadow-md p-6">
+    <h2 className="text-xl font-semibold text-maroon mb-4 border-b-2 border-gold pb-2">
+      {title}
+    </h2>
+    {children}
+  </div>
+);
+
+const DetailItem = ({ label, value }) => (
+  <div className="flex flex-col md:flex-row justify-between py-2 border-b border-lightGray">
+    <span className="text-mediumGray text-sm md:text-base">{label}</span>
+    <span className="text-darkGray font-medium text-sm md:text-base truncate">
+      {value || "N/A"}
+    </span>
+  </div>
+);
+
+const Timeline = ({ children }) => <div>{children}</div>;
+const TimelineItem = ({ date, title, description }) => (
+  <div>
+    <strong>{title}</strong> - {date}: {description}
+  </div>
+);
+
+const AchievementBadge = ({ title, date }) => (
+  <div className="bg-gold text-darkMaroon rounded px-3 py-1">
+    {title} - {date}
+  </div>
+);
+
+const ActionButton = ({ icon, label }) => (
+  <button className="flex flex-col md:flex-row items-center justify-center gap-1 md:gap-2 p-2 md:p-3 border rounded-lg hover:bg-veryLightGray transition-all text-sm md:text-base">
+    {React.cloneElement(icon, { className: "w-5 h-5 md:w-6 md:h-6" })}
+    <span className="text-center">{label}</span>
+  </button>
+);
