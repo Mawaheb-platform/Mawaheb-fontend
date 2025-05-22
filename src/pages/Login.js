@@ -2,7 +2,8 @@ import React, { useState, useEffect, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import PopupModal from "../components/ui/PopupModal";
 import { useDispatch } from "react-redux";
-import { login } from '../features/user/authSlice';
+import { login } from "../features/user/authSlice";
+import { toast } from "react-toastify";
 
 const Login = () => {
   const dispatch = useDispatch();
@@ -12,9 +13,6 @@ const Login = () => {
     email: "",
     password: "",
   });
-
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState('');
 
   const validateEmail = (email) => {
     const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -31,26 +29,32 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!validateEmail(formData.email)) {
-      setError("Invalid email address");
+      toast.error("Invalid email address");
       return;
     }
     try {
-      const response = await fetch(`${process.env.REACT_APP_API_URL}/auth/login`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(formData),
-      });
+      const response = await fetch(
+        `${process.env.REACT_APP_API_URL}/auth/login`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(formData),
+        }
+      );
       const data = await response.json();
       if (response.ok) {
-          setSuccess("Login successfully!");
-          const { token } = data;
-          const user = { id: data.user.id, role: data.user.role, email: data.user.email };
-          dispatch(login({ token, user }));
-          navigate('/');
+        toast.success("Login successfully!");
+        const { token, user } = data;
+        dispatch(login({ token, user }));
+        if (user.role === "Admin") {
+          navigate("/admin-dashboard");
+        } else {
+          navigate("/profile");
+        }
       } else {
-          setError(data.message || "An error occurred while login!");
+        toast.error(data.message || "An error occurred while login!");
       }
     } catch (error) {
       console.error("Error logging in:", error);
@@ -63,8 +67,6 @@ const Login = () => {
         <h2 className="text-3xl font-semibold text-center text-darkGray mb-6">
           Log In
         </h2>
-        {error && <div style={{ color: "red" }}>{error}</div>}
-        {success && <div style={{ color: "green" }}>{success}</div>}
         <form onSubmit={handleSubmit}>
           <div className="mb-4">
             <label

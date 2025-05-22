@@ -28,7 +28,6 @@ import StudentReportPage from "./pages/scholarshipStudentPages/StudentReportPage
 import University from "./pages/scholarshipStudentPages/University";
 import StudentReportList from "./pages/scholarshipStudentPages/StudentReportList ";
 import FinancialReport from "./pages/FinancialReport";
-import Sidebar from "./components/layout/Sidebar";
 import StudentDetails from "./pages/adminDashboard/StudentDetails";
 import { useSelector } from "react-redux";
 import CreateTicket from "./pages/CreateTicket";
@@ -77,7 +76,6 @@ function App() {
           <Route path="/semester-list" element={<SemesterList />} />
           <Route path="/semester-details" element={<SemesterDetails />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
-          <Route path="/admin-dashboard" element={<AdminDashboard />} />
           <Route
             path="/student/financial-report"
             element={<FinancialReport />}
@@ -89,6 +87,7 @@ function App() {
           <Route path="/student/details" element={<StudentDetails />} />
           <Route path="/create-ticket" element={<CreateTicket />} />
           <Route path="/ticket-list" element={<TicketList />} />
+          <Route path="/admin-dashboard" element={<AdminDashboard />} />
           <Route path="/*" element={<NotFound />} />
         </Routes>
       </main>
