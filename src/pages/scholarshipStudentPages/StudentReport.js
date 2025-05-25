@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useSelector } from "react-redux";
+import { toast } from "react-toastify";
 
 const StudentReport = ({ reportId, onSave }) => {
   const [form, setForm] = useState({
@@ -30,26 +31,38 @@ const StudentReport = ({ reportId, onSave }) => {
   });
 
   const [newItems, setNewItems] = useState({
-    course: { title: '', description: '', course_image: '' },
-    note: { title: '', description: '' },
-    difficulty: { title: '', description: '' },
-    userAchievement: { title: '', description: '', category: '', achievement_image: '' },
-    event: { title: '', description: '', photo: '' },
-    certificate: { title: '', description: '', certificate_image: '', certificate_link: '' },
+    course: { title: "", description: "", course_image: "" },
+    note: { title: "", description: "" },
+    difficulty: { title: "", description: "" },
+    userAchievement: {
+      title: "",
+      description: "",
+      category: "",
+      achievement_image: "",
+    },
+    event: { title: "", description: "", photo: "" },
+    certificate: {
+      title: "",
+      description: "",
+      certificate_image: "",
+      certificate_link: "",
+    },
   });
 
   const [message, setMessage] = useState(""); // Message state for user feedback
   const token = useSelector((state) => state.auth.token);
-  
+  const [reports, setReports] = useState([]);
+
   useEffect(() => {
     const fetchOptions = async () => {
       try {
         const response = await fetch(
           `${process.env.REACT_APP_API_URL}/studentReports/options`,
           {
-            headers: { 
-            "Content-Type": "application/json",
-              Authorization: `Bearer ${token}` },
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
           }
         );
         const data = await response.json();
@@ -60,6 +73,27 @@ const StudentReport = ({ reportId, onSave }) => {
     };
 
     fetchOptions();
+  }, [token]);
+
+  // fetch user reports
+  useEffect(() => {
+    const fetchStudentReport = async () => {
+      try {
+        const response = await fetch(
+          `${process.env.REACT_APP_API_URL}/studentReports`,
+          {
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+        setReports(response.data);
+      } catch (error) {
+        toast.error(error);
+      }
+    };
+    fetchStudentReport();
   }, [token]);
 
   const handleChange = (e) => {
@@ -96,15 +130,20 @@ const StudentReport = ({ reportId, onSave }) => {
       );
       const data = await response.json();
       onSave(data);
-      setMessage(reportId ? "Report updated successfully!" : "Report created successfully!");
+      setMessage(
+        reportId
+          ? "Report updated successfully!"
+          : "Report created successfully!"
+      );
     } catch (error) {
       console.error("Error saving report:", error);
     }
   };
 
   const handleCreateNewItem = async (itemType) => {
-    const endpoint = itemType === "difficulty" ? "difficulties" : `${itemType}s`
-    console.log("this is endpoints: ", endpoint)
+    const endpoint =
+      itemType === "difficulty" ? "difficulties" : `${itemType}s`;
+    console.log("this is endpoints: ", endpoint);
     try {
       const response = await fetch(
         `${process.env.REACT_APP_API_URL}/${endpoint}`,
@@ -132,15 +171,27 @@ const StudentReport = ({ reportId, onSave }) => {
       }));
       setNewItems((prevNewItems) => ({
         ...prevNewItems,
-        [itemType]: itemType === 'note' ? { title: '', description: '' } : { title: '', description: '', course_image: '', category: '', achievement_image: '', photo: '', certificate_image: '', certificate_link: '' },
+        [itemType]:
+          itemType === "note"
+            ? { title: "", description: "" }
+            : {
+                title: "",
+                description: "",
+                course_image: "",
+                category: "",
+                achievement_image: "",
+                photo: "",
+                certificate_image: "",
+                certificate_link: "",
+              },
       }));
     } catch (error) {
       console.error(`Error creating new ${itemType}:`, error);
     }
   };
 
-   // Pluralization map
-   const pluralMap = {
+  // Pluralization map
+  const pluralMap = {
     course: "courses",
     note: "notes",
     difficulty: "difficulties",
@@ -150,160 +201,231 @@ const StudentReport = ({ reportId, onSave }) => {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="max-w-4xl mx-auto p-8 bg-white shadow-lg rounded-lg mb-12">
-       {message && (
-        <div className="mb-4 text-green-600">
-          {message}
-        </div>
-      )}
-      <div className="mb-4">
-        <label className="block text-sm font-medium text-gray-700">Title</label>
-        <input
-          type="text"
-          name="title"
-          value={form.title}
-          onChange={handleChange}
-          className="mt-1 block w-full px-3 py-2 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50"
-        />
-      </div>
-      {['course', 'note', 'difficulty', 'userAchievement', 'event', 'certificate'].map((itemType) => (
-        <div key={itemType} className="mb-4">
-          <label className="block text-sm font-medium text-gray-700 capitalize">{itemType}</label>
-          {creatingNew[itemType] ? (
-            <>
-              <input
-                type="text"
-                name="title"
-                placeholder="Title"
-                value={newItems[itemType].title}
-                onChange={(e) => handleNewItemChange(e, itemType)}
-                className="mt-1 block w-full px-3 py-2 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50"
-              />
-              <textarea
-                name="description"
-                placeholder="Description"
-                value={newItems[itemType].description}
-                onChange={(e) => handleNewItemChange(e, itemType)}
-                className="mt-1 block w-full px-3 py-2 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50"
-              />
-              {itemType === 'course' && (
-                <input
-                  type="text"
-                  name="course_image"
-                  placeholder="Course Image URL"
-                  value={newItems.course.course_image}
-                  onChange={(e) => handleNewItemChange(e, 'course')}
-                  className="mt-1 block w-full px-3 py-2 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50"
-                />
-              )}
-              {itemType === 'certificate' && (
-                <>
-                  <input
-                    type="text"
-                    name="certificate_image"
-                    placeholder="Certificate Image URL"
-                    value={newItems.certificate.certificate_image}
-                    onChange={(e) => handleNewItemChange(e, 'certificate')}
-                    className="mt-1 block w-full px-3 py-2 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50"
-                  />
-                  <input
-                    type="text"
-                    name="certificate_link"
-                    placeholder="Certificate Link"
-                    value={newItems.certificate.certificate_link}
-                    onChange={(e) => handleNewItemChange(e, 'certificate')}
-                    className="mt-1 block w-full px-3 py-2 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50"
-                  />
-                </>
-              )}
-              {itemType === 'userAchievement' && (
-                <>
-                  <input
-                    type="text"
-                    name="category"
-                    placeholder="Category"
-                    value={newItems.userAchievement.category}
-                    onChange={(e) => handleNewItemChange(e, 'userAchievement')}
-                    className="mt-1 block w-full px-3 py-2 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50"
-                  />
-                  <input
-                    type="text"
-                    name="achievement_image"
-                    placeholder="Achievement Image URL"
-                    value={newItems.userAchievement.achievement_image}
-                    onChange={(e) => handleNewItemChange(e, 'userAchievement')}
-                    className="mt-1 block w-full px-3 py-2 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50"
-                  />
-                </>
-              )}
-              {itemType === 'event' && (
-                <input
-                  type="text"
-                  name="photo"
-                  placeholder="Event Photo URL"
-                  value={newItems.event.photo}
-                  onChange={(e) => handleNewItemChange(e, 'event')}
-                  className="mt-1 block w-full px-3 py-2 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50"
-                />
-              )}
-              <button
-                type="button"
-                onClick={() => handleCreateNewItem(itemType)}
-                className="mt-2 bg-blue-500 text-white hover:bg-blue-600 px-4 py-2 rounded-md"
-              >
-                Save New {itemType}
-              </button>
-              <button
-                type="button"
-                onClick={() => setCreatingNew((prev) => ({ ...prev, [itemType]: false }))}
-                className="mt-2 ml-2 text-gray-500 hover:text-gray-700"
-              >
-                Cancel
-              </button>
-            </>
-          ) : (
-            <div className="mt-1 flex items-center">
-              <select
-                name={`${itemType}Id`}
-                value={form[`${itemType}Id`]}
-                onChange={handleChange}
-                className="mt-1 block w-full px-3 py-2 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50"
-              >
-                <option value="">Select a {itemType}</option>
-                {options[pluralMap[itemType]] && options[pluralMap[itemType]].map((option) => (
-                  <option key={option._id} value={option._id}>
-                    {option.title}
-                  </option>
-                ))}
-              </select>
-              <button
-                type="button"
-                onClick={() => setCreatingNew((prev) => ({ ...prev, [itemType]: true }))}
-                className="mt-2 text-blue-500 hover:text-mutedGold"
-              >
-                Create New {itemType}
-              </button>
-            </div>
-          )}
-        </div>
-      ))}
-      <div className="mb-4">
-        <label className="block text-sm font-medium text-gray-700">Date of Report</label>
-        <input
-          type="date"
-          name="date_of_report"
-          value={form.date_of_report}
-          onChange={handleChange}
-          className="mt-1 block w-full px-3 py-2 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50"
-        />
-      </div>
-      <button
-        type="submit"
-        className="bg-gold text-white hover:bg-mutedGold px-4 py-2 rounded-md"
+    <div>
+      <form
+        onSubmit={handleSubmit}
+        className="max-w-4xl mx-auto p-8 bg-white shadow-lg rounded-lg mb-12"
       >
-        {reportId ? 'Update' : 'Create'} Report
-      </button>
-    </form>
+        {message && <div className="mb-4 text-green-600">{message}</div>}
+        <div className="mb-4">
+          <label className="block text-sm font-medium text-gray-700">
+            Title
+          </label>
+          <input
+            type="text"
+            name="title"
+            value={form.title}
+            onChange={handleChange}
+            className="mt-1 block w-full px-3 py-2 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50"
+          />
+        </div>
+        {[
+          "course",
+          "note",
+          "difficulty",
+          "userAchievement",
+          "event",
+          "certificate",
+        ].map((itemType) => (
+          <div key={itemType} className="mb-4">
+            <label className="block text-sm font-medium text-gray-700 capitalize">
+              {itemType}
+            </label>
+            {creatingNew[itemType] ? (
+              <>
+                <input
+                  type="text"
+                  name="title"
+                  placeholder="Title"
+                  value={newItems[itemType].title}
+                  onChange={(e) => handleNewItemChange(e, itemType)}
+                  className="mt-1 block w-full px-3 py-2 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50"
+                />
+                <textarea
+                  name="description"
+                  placeholder="Description"
+                  value={newItems[itemType].description}
+                  onChange={(e) => handleNewItemChange(e, itemType)}
+                  className="mt-1 block w-full px-3 py-2 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50"
+                />
+                {itemType === "course" && (
+                  <input
+                    type="text"
+                    name="course_image"
+                    placeholder="Course Image URL"
+                    value={newItems.course.course_image}
+                    onChange={(e) => handleNewItemChange(e, "course")}
+                    className="mt-1 block w-full px-3 py-2 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50"
+                  />
+                )}
+                {itemType === "certificate" && (
+                  <>
+                    <input
+                      type="text"
+                      name="certificate_image"
+                      placeholder="Certificate Image URL"
+                      value={newItems.certificate.certificate_image}
+                      onChange={(e) => handleNewItemChange(e, "certificate")}
+                      className="mt-1 block w-full px-3 py-2 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50"
+                    />
+                    <input
+                      type="text"
+                      name="certificate_link"
+                      placeholder="Certificate Link"
+                      value={newItems.certificate.certificate_link}
+                      onChange={(e) => handleNewItemChange(e, "certificate")}
+                      className="mt-1 block w-full px-3 py-2 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50"
+                    />
+                  </>
+                )}
+                {itemType === "userAchievement" && (
+                  <>
+                    <input
+                      type="text"
+                      name="category"
+                      placeholder="Category"
+                      value={newItems.userAchievement.category}
+                      onChange={(e) =>
+                        handleNewItemChange(e, "userAchievement")
+                      }
+                      className="mt-1 block w-full px-3 py-2 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50"
+                    />
+                    <input
+                      type="text"
+                      name="achievement_image"
+                      placeholder="Achievement Image URL"
+                      value={newItems.userAchievement.achievement_image}
+                      onChange={(e) =>
+                        handleNewItemChange(e, "userAchievement")
+                      }
+                      className="mt-1 block w-full px-3 py-2 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50"
+                    />
+                  </>
+                )}
+                {itemType === "event" && (
+                  <input
+                    type="text"
+                    name="photo"
+                    placeholder="Event Photo URL"
+                    value={newItems.event.photo}
+                    onChange={(e) => handleNewItemChange(e, "event")}
+                    className="mt-1 block w-full px-3 py-2 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50"
+                  />
+                )}
+                <button
+                  type="button"
+                  onClick={() => handleCreateNewItem(itemType)}
+                  className="mt-2 bg-blue-500 text-white hover:bg-blue-600 px-4 py-2 rounded-md"
+                >
+                  Save New {itemType}
+                </button>
+                <button
+                  type="button"
+                  onClick={() =>
+                    setCreatingNew((prev) => ({ ...prev, [itemType]: false }))
+                  }
+                  className="mt-2 ml-2 text-gray-500 hover:text-gray-700"
+                >
+                  Cancel
+                </button>
+              </>
+            ) : (
+              <div className="mt-1 flex items-center">
+                <select
+                  name={`${itemType}Id`}
+                  value={form[`${itemType}Id`]}
+                  onChange={handleChange}
+                  className="mt-1 block w-full px-3 py-2 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50"
+                >
+                  <option value="">Select a {itemType}</option>
+                  {options[pluralMap[itemType]] &&
+                    options[pluralMap[itemType]].map((option) => (
+                      <option key={option._id} value={option._id}>
+                        {option.title}
+                      </option>
+                    ))}
+                </select>
+                <button
+                  type="button"
+                  onClick={() =>
+                    setCreatingNew((prev) => ({ ...prev, [itemType]: true }))
+                  }
+                  className="mt-2 text-blue-500 hover:text-mutedGold"
+                >
+                  Create New {itemType}
+                </button>
+              </div>
+            )}
+          </div>
+        ))}
+        <div className="mb-4">
+          <label className="block text-sm font-medium text-gray-700">
+            Date of Report
+          </label>
+          <input
+            type="date"
+            name="date_of_report"
+            value={form.date_of_report}
+            onChange={handleChange}
+            className="mt-1 block w-full px-3 py-2 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50"
+          />
+        </div>
+        <button
+          type="submit"
+          className="bg-gold text-white hover:bg-mutedGold px-4 py-2 rounded-md"
+        >
+          {reportId ? "Update" : "Create"} Report
+        </button>
+      </form>
+      <div className="bg-white shadow-md rounded px-8 pt-6 pb-8">
+        <h2 className="text-2xl font-semibold mb-4 text-gray-800">
+          Existing Records
+        </h2>
+        <div className="overflow-x-auto">
+          <table className="min-w-full leading-normal">
+            <thead>
+              <tr>
+                <th className="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                  University
+                </th>
+                <th className="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                  Program
+                </th>
+                <th className="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                  Enrollment Year
+                </th>
+                <th className="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                  Actions
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {reports?.map((report) => (
+                <tr key={report._id}>
+                  <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">
+                    {report.title}
+                  </td>
+                  <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">
+                    {report.program_of_study}
+                  </td>
+                  <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">
+                    {report.enrollment_year}
+                  </td>
+                  <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">
+                    <button
+                      // onClick={() => handleEdit(student)}
+                      className="text-blue-500 hover:text-blue-700 mr-4"
+                    >
+                      Edit
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
   );
 };
 

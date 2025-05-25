@@ -8,7 +8,6 @@ import Profile from "./components/profile/Profile";
 import Contact from "./pages/Contact";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
-// import StudentReport from "./pages/StudentReport";
 import StudentCourse from "./pages/Course";
 import StudentEvent from "./pages/Event";
 import Ticket from "./pages/Ticket";
@@ -20,16 +19,12 @@ import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
 import Difficulties from "./pages/Difficulties";
 import AdminDashboard from "./pages/adminDashboard/AdminDashboard";
-import ScholarshipStudentForm from "./pages/scholarshipStudentPages/ScholarshipStudentForm";
+import ScholarshipStudentForm from "./pages/scholarshipStudentPages/ScholarshipStudent";
 import UniversityDetails from "./pages/UniversityDetails";
-import SemesterList from "./pages/SemesterList";
-import SemesterDetails from "./pages/SemesterDetails";
 import StudentReportPage from "./pages/scholarshipStudentPages/StudentReportPage";
-import University from "./pages/scholarshipStudentPages/University";
 import StudentReportList from "./pages/scholarshipStudentPages/StudentReportList ";
 import FinancialReport from "./pages/FinancialReport";
 import StudentDetails from "./pages/adminDashboard/StudentDetails";
-import { useSelector } from "react-redux";
 import CreateTicket from "./pages/CreateTicket";
 import TicketList from "./pages/TicketList";
 import NotFound from "./pages/404";
@@ -38,9 +33,11 @@ import Test from "./components/profile/Profile";
 
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import UniversityInformation from "./pages/scholarshipStudentPages/UniversityInformation";
+import SemesterForm from "./pages/scholarshipStudentPages/SemesterForm";
+import SemestersList from "./pages/scholarshipStudentPages/SemesterList";
 
 function App() {
-  const isLoggedIn = useSelector((state) => state.auth.token);
   // const userRole = useSelector((state) => state.auth.user.role);
 
   return (
@@ -71,10 +68,13 @@ function App() {
             element={<StudentCertificate />}
           />
           <Route path="/student/difficulties" element={<Difficulties />} />
-          <Route path="/student/form" element={<ScholarshipStudentForm />} />
+          <Route
+            path="/student/scholarship-student-form"
+            element={<ScholarshipStudentForm />}
+          />
           <Route path="/universityDetails" element={<UniversityDetails />} />
-          <Route path="/semester-list" element={<SemesterList />} />
-          <Route path="/semester-details" element={<SemesterDetails />} />
+          <Route path="/semester-list" element={<SemestersList />} />
+          <Route path="/semester-create" element={<SemesterForm />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route
             path="/student/financial-report"
@@ -83,8 +83,11 @@ function App() {
           <Route path="/reset-password/:token" element={<ResetPassword />} />
           <Route path="/student-report" element={<StudentReportPage />} />
           <Route path="/my-reports" element={<StudentReportList />} />
-          <Route path="/student/university" element={<University />} />
           <Route path="/student/details" element={<StudentDetails />} />
+          <Route
+            path="/student/university-information"
+            element={<UniversityInformation />}
+          />
           <Route path="/create-ticket" element={<CreateTicket />} />
           <Route path="/ticket-list" element={<TicketList />} />
           <Route path="/admin-dashboard" element={<AdminDashboard />} />

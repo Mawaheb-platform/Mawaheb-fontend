@@ -3,7 +3,6 @@ import { Link } from "react-router-dom";
 import { FaBars, FaTimes } from "react-icons/fa";
 
 const Sidebar = ({ userType }) => {
-  
   const [isOpen, setIsOpen] = useState(false);
 
   const links = [
@@ -15,9 +14,15 @@ const Sidebar = ({ userType }) => {
     { to: "/student/achievements", label: "Achievements" },
     { to: "/student/certificates", label: "Certificates" },
     { to: "/student/difficulties", label: "Difficulties" },
-    { to: "/student/financial-report", label: "Financial Report" }, 
+    { to: "/student/financial-report", label: "Financial Report" },
     { to: "/student/university", label: "University Records" },
-  ]; 
+    { to: "/student/university-information", label: "University Information" },
+    {
+      to: "/student/scholarship-student-form",
+      label: "Scholarship Student Information form",
+    },
+    { to: "/semester-list", label: "Semester List" },
+  ];
 
   return (
     <div className="relative">

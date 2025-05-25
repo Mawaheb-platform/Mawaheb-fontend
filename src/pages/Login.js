@@ -1,6 +1,5 @@
-import React, { useState, useEffect, useRef } from "react";
+import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import PopupModal from "../components/ui/PopupModal";
 import { useDispatch } from "react-redux";
 import { login } from "../features/user/authSlice";
 import { toast } from "react-toastify";
@@ -48,11 +47,7 @@ const Login = () => {
         toast.success("Login successfully!");
         const { token, user } = data;
         dispatch(login({ token, user }));
-        if (user.role === "Admin") {
-          navigate("/admin-dashboard");
-        } else {
-          navigate("/profile");
-        }
+        navigate("/");
       } else {
         toast.error(data.message || "An error occurred while login!");
       }

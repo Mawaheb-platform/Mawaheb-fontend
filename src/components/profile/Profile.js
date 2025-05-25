@@ -18,7 +18,6 @@ import {
 const Profile = () => {
   const token = useSelector((state) => state.auth.token);
   const [profile, setProfile] = useState();
-
   useEffect(() => {
     const fetchUserProfile = async () => {
       try {
@@ -108,22 +107,22 @@ const Profile = () => {
             </p>
             <div className="flex flex-wrap justify-center md:justify-start gap-2">
               <StatBadge
-                count={profile?.certificates?.length}
+                count={profile?.statistics.certificates}
                 label="Certificates"
                 className="text-sm"
               />
               <StatBadge
-                count={profile?.courses?.length}
+                count={profile?.statistics.courses}
                 label="Courses"
                 className="text-sm"
               />
               <StatBadge
-                count={profile?.events?.length}
+                count={profile?.statistics.events}
                 label="Events"
                 className="text-sm"
               />
               <StatBadge
-                count={profile?.achievements?.length}
+                count={profile?.statistics.achievements}
                 label="Achievements"
                 className="text-sm"
               />
@@ -139,23 +138,26 @@ const Profile = () => {
           <SectionCard title="Academic Information">
             <DetailItem
               label="University ID"
-              value={profile?.student_university_id}
+              value={profile?.scholarshipStudentProfile.student_university_id}
             />
             <DetailItem
               label="Enrollment Year"
-              value={profile?.enrollment_year}
+              value={profile?.scholarshipStudentProfile.enrollment_year}
             />
             <DetailItem
               label="Expected Graduation"
-              value={profile?.expected_graduation_year || "Not Available"}
+              value={
+                profile?.scholarshipStudentProfile.expected_graduation_year ||
+                "Not Available"
+              }
             />
             <DetailItem
               label="University Type"
-              value={profile?.type_of_university}
+              value={profile?.scholarshipStudentProfile.type_of_university}
             />
             <DetailItem
               label="Location"
-              value={`${profile?.city}, ${profile?.country_of_studying}`}
+              value={`${profile?.scholarshipStudentProfile.city}, ${profile?.scholarshipStudentProfile.country_of_studying}`}
             />
           </SectionCard>
 

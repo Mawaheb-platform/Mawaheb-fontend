@@ -1,9 +1,13 @@
-import React, { useState, useEffect } from 'react';
-import { useSelector } from 'react-redux';
+import React, { useState, useEffect } from "react";
+import { useSelector } from "react-redux";
 
 const Event = () => {
   const [events, setEvents] = useState([]);
-  const [formData, setFormData] = useState({ title: '', description: '', photo: null });
+  const [formData, setFormData] = useState({
+    title: "",
+    description: "",
+    photo: null,
+  });
   const [selectedEvent, setSelectedEvent] = useState(null);
   const [showForm, setShowForm] = useState(false);
   const token = useSelector((state) => state.auth.token);
@@ -12,17 +16,20 @@ const Event = () => {
   useEffect(() => {
     const fetchEvents = async () => {
       try {
-        const response = await fetch(`${process.env.REACT_APP_API_URL}/events`, {
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${token}`,
-          },
-        });
+        const response = await fetch(
+          `${process.env.REACT_APP_API_URL}/events`,
+          {
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
         const data = await response.json();
         setEvents(data);
       } catch (error) {
-        console.error('Error fetching events:', error);
-        setError('Failed to load events');
+        console.error("Error fetching events:", error);
+        setError("Failed to load events");
       }
     };
 
@@ -47,7 +54,7 @@ const Event = () => {
 
     try {
       const response = await fetch(`${process.env.REACT_APP_API_URL}/events`, {
-        method: 'POST',
+        method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -55,11 +62,11 @@ const Event = () => {
       });
       const data = await response.json();
       setEvents([...events, data.event]);
-      setFormData({ title: '', description: '', photo: null });
+      setFormData({ title: "", description: "", photo: null });
       setShowForm(false);
     } catch (error) {
-      console.error('Error creating event:', error);
-      setError('Failed to create event');
+      console.error("Error creating event:", error);
+      setError("Failed to create event");
     }
   };
 
@@ -71,48 +78,56 @@ const Event = () => {
     });
 
     try {
-      const response = await fetch(`${process.env.REACT_APP_API_URL}/events/${selectedEvent._id}`, {
-        method: 'PUT',
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-        body: form,
-      });
+      const response = await fetch(
+        `${process.env.REACT_APP_API_URL}/events/${selectedEvent._id}`,
+        {
+          method: "PUT",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          body: form,
+        }
+      );
       const data = await response.json();
-      setEvents(events.map((evt) => (evt._id === data.event._id ? data.event : evt)));
-      setFormData({ title: '', description: '', photo: null });
+      setEvents(
+        events.map((evt) => (evt._id === data.event._id ? data.event : evt))
+      );
+      setFormData({ title: "", description: "", photo: null });
       setSelectedEvent(null);
       setShowForm(false);
     } catch (error) {
-      console.error('Error updating event:', error);
-      setError('Failed to update event');
+      console.error("Error updating event:", error);
+      setError("Failed to update event");
     }
   };
 
   const handleDelete = async (id) => {
     try {
-      const response = await fetch(`${process.env.REACT_APP_API_URL}/events/${id}`, {
-        method: 'DELETE',
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const response = await fetch(
+        `${process.env.REACT_APP_API_URL}/events/${id}`,
+        {
+          method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
       if (response.ok) {
         setEvents(events.filter((evt) => evt._id !== id));
       } else {
-        setError('Failed to delete event');
+        setError("Failed to delete event");
       }
     } catch (error) {
-      console.error('Error deleting event:', error);
-      setError('Failed to delete event');
+      console.error("Error deleting event:", error);
+      setError("Failed to delete event");
     }
   };
 
   const handleEdit = (event) => {
     setSelectedEvent(event);
     setFormData({
-      title: event.title || '',
-      description: event.description || '',
+      title: event.title || "",
+      description: event.description || "",
       photo: null,
     });
     setShowForm(true);
@@ -120,7 +135,7 @@ const Event = () => {
 
   const handleAddNew = () => {
     setSelectedEvent(null);
-    setFormData({ title: '', description: '', photo: null });
+    setFormData({ title: "", description: "", photo: null });
     setShowForm(true);
   };
 
@@ -141,11 +156,16 @@ const Event = () => {
       {showForm && (
         <div className="bg-white p-6 rounded-lg shadow-md mb-6">
           <h2 className="text-2xl text-darkGray font-semibold mb-4">
-            {selectedEvent ? 'Edit Event' : 'Create Event'}
+            {selectedEvent ? "Edit Event" : "Create Event"}
           </h2>
-          <form onSubmit={selectedEvent ? handleUpdate : handleSubmit} encType="multipart/form-data">
+          <form
+            onSubmit={selectedEvent ? handleUpdate : handleSubmit}
+            encType="multipart/form-data"
+          >
             <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-700">Title</label>
+              <label className="block text-sm font-medium text-gray-700">
+                Title
+              </label>
               <input
                 type="text"
                 name="title"
@@ -156,7 +176,9 @@ const Event = () => {
               />
             </div>
             <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-700">Description</label>
+              <label className="block text-sm font-medium text-gray-700">
+                Description
+              </label>
               <textarea
                 name="description"
                 value={formData.description}
@@ -167,7 +189,9 @@ const Event = () => {
               ></textarea>
             </div>
             <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-700">Event Photo</label>
+              <label className="block text-sm font-medium text-gray-700">
+                Event Photo
+              </label>
               <input
                 type="file"
                 name="photo"
@@ -180,7 +204,7 @@ const Event = () => {
               type="submit"
               className="px-4 py-2 bg-darkGray text-white rounded-md hover:bg-gray-700"
             >
-              {selectedEvent ? 'Update' : 'Create'}
+              {selectedEvent ? "Update" : "Create"}
             </button>
             <button
               onClick={() => setShowForm(false)}
@@ -196,8 +220,12 @@ const Event = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {events.map((event) => (
             <div key={event._id} className="bg-white p-6 rounded-lg shadow-md">
-              <h3 className="text-xl text-darkGray font-semibold mb-2">{event?.title || 'No title'}</h3>
-              <p className="text-gray-600 mb-4">{event?.description || 'No description'}</p>
+              <h3 className="text-xl text-darkGray font-semibold mb-2">
+                {event?.title || "No title"}
+              </h3>
+              <p className="text-gray-600 mb-4">
+                {event?.description || "No description"}
+              </p>
               {event.photo && (
                 <img
                   src={`${process.env.REACT_APP_API_URL}/${event.photo}`}

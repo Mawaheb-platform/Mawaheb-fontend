@@ -1,7 +1,6 @@
 import React from "react";
 
 const StudentDetails = ({ user, category }) => {
-    console.log("this is the details: ", user, category)
   if (!user || !category) return null;
 
   const renderCategoryDetails = () => {
