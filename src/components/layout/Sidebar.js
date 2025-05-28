@@ -15,7 +15,6 @@ const Sidebar = ({ userType }) => {
     { to: "/student/certificates", label: "Certificates" },
     { to: "/student/difficulties", label: "Difficulties" },
     { to: "/student/financial-report", label: "Financial Report" },
-    { to: "/student/university", label: "University Records" },
     { to: "/student/university-information", label: "University Information" },
     {
       to: "/student/scholarship-student-form",
