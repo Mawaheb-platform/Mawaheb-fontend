@@ -33,9 +33,9 @@ import Test from "./components/profile/Profile";
 
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import UniversityInformation from "./pages/scholarshipStudentPages/UniversityInformation";
 import SemesterForm from "./pages/scholarshipStudentPages/SemesterForm";
 import SemestersList from "./pages/scholarshipStudentPages/SemesterList";
+import StudentReport from "./pages/scholarshipStudentPages/StudentReport";
 
 function App() {
   // const userRole = useSelector((state) => state.auth.user.role);
@@ -72,6 +72,8 @@ function App() {
             path="/student/scholarship-student-form"
             element={<ScholarshipStudentForm />}
           />
+          <Route path="/try-report" element={<StudentReport />} />
+          <Route path="/try-report-list" element={<StudentReportList />} />
           <Route path="/universityDetails" element={<UniversityDetails />} />
           <Route path="/semester-list" element={<SemestersList />} />
           <Route path="/semester-create" element={<SemesterForm />} />
@@ -84,10 +86,7 @@ function App() {
           <Route path="/student-report" element={<StudentReportPage />} />
           <Route path="/my-reports" element={<StudentReportList />} />
           <Route path="/student/details" element={<StudentDetails />} />
-          <Route
-            path="/student/university-information"
-            element={<UniversityInformation />}
-          />
+
           <Route path="/create-ticket" element={<CreateTicket />} />
           <Route path="/ticket-list" element={<TicketList />} />
           <Route path="/admin-dashboard" element={<AdminDashboard />} />

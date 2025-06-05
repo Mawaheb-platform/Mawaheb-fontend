@@ -34,7 +34,6 @@ const Profile = () => {
         if (!response.ok) throw new Error("Failed to fetch profile.");
         const userData = await response.json();
         setProfile(userData);
-        console.log("this is data: ", userData);
         // setStatistics(userData.statistics);
       } catch (error) {
         console.error("Error fetching user profile:", error);
@@ -117,6 +116,26 @@ const Profile = () => {
                 className="text-sm"
               />
               <StatBadge
+                count={profile?.statistics.financialReports}
+                label="Financial Reports"
+                className="text-sm"
+              />
+              <StatBadge
+                count={profile?.statistics.notes}
+                label="Notes"
+                className="text-sm"
+              />
+              <StatBadge
+                count={profile?.statistics.semesters}
+                label="Semesters"
+                className="text-sm"
+              />
+              <StatBadge
+                count={profile?.statistics.tickets}
+                label="Tickets"
+                className="text-sm"
+              />
+              <StatBadge
                 count={profile?.statistics.events}
                 label="Events"
                 className="text-sm"
@@ -124,6 +143,11 @@ const Profile = () => {
               <StatBadge
                 count={profile?.statistics.achievements}
                 label="Achievements"
+                className="text-sm"
+              />
+              <StatBadge
+                count={profile?.statistics.studentReports}
+                label="Student Reports"
                 className="text-sm"
               />
             </div>

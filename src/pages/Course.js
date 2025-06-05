@@ -1,28 +1,35 @@
-import React, { useState, useEffect } from 'react';
-import { useSelector } from 'react-redux';
+import React, { useState, useEffect } from "react";
+import { useSelector } from "react-redux";
+import { toast } from "react-toastify";
 
 const CoursePage = () => {
   const [courses, setCourses] = useState([]);
-  const [formData, setFormData] = useState({ title: '', description: '', course_image: null });
+  const [formData, setFormData] = useState({
+    title: "",
+    description: "",
+    course_image: null,
+  });
   const [selectedCourse, setSelectedCourse] = useState(null);
   const [showForm, setShowForm] = useState(false);
   const token = useSelector((state) => state.auth.token);
-  const [error, setError] = useState(null);
 
   useEffect(() => {
     const fetchCourses = async () => {
       try {
-        const response = await fetch(`${process.env.REACT_APP_API_URL}/courses`, {
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${token}`,
-          },
-        });
+        const response = await fetch(
+          `${process.env.REACT_APP_API_URL}/courses`,
+          {
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
         const data = await response.json();
         setCourses(data);
       } catch (error) {
-        console.error('Error fetching courses:', error);
-        setError('Failed to load courses');
+        console.error("Error fetching courses:", error);
+        toast.error("Failed to load courses");
       }
     };
 
@@ -47,7 +54,7 @@ const CoursePage = () => {
 
     try {
       const response = await fetch(`${process.env.REACT_APP_API_URL}/courses`, {
-        method: 'POST',
+        method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -55,11 +62,11 @@ const CoursePage = () => {
       });
       const data = await response.json();
       setCourses([...courses, data.course]);
-      setFormData({ title: '', description: '', course_image: null });
+      setFormData({ title: "", description: "", course_image: null });
       setShowForm(false);
     } catch (error) {
-      console.error('Error creating course:', error);
-      setError('Failed to create course');
+      console.error("Error creating course:", error);
+      toast.error("Failed to create course");
     }
   };
 
@@ -71,48 +78,56 @@ const CoursePage = () => {
     });
 
     try {
-      const response = await fetch(`${process.env.REACT_APP_API_URL}/courses/${selectedCourse._id}`, {
-        method: 'PUT',
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-        body: form,
-      });
+      const response = await fetch(
+        `${process.env.REACT_APP_API_URL}/courses/${selectedCourse._id}`,
+        {
+          method: "PUT",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          body: form,
+        }
+      );
       const data = await response.json();
-      setCourses(courses.map((crs) => (crs._id === data.course._id ? data.course : crs)));
-      setFormData({ title: '', description: '', course_image: null });
+      setCourses(
+        courses.map((crs) => (crs._id === data.course._id ? data.course : crs))
+      );
+      setFormData({ title: "", description: "", course_image: null });
       setSelectedCourse(null);
       setShowForm(false);
     } catch (error) {
-      console.error('Error updating course:', error);
-      setError('Failed to update course');
+      console.error("Error updating course:", error);
+      toast.error("Failed to update course");
     }
   };
 
   const handleDelete = async (id) => {
     try {
-      const response = await fetch(`${process.env.REACT_APP_API_URL}/courses/${id}`, {
-        method: 'DELETE',
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const response = await fetch(
+        `${process.env.REACT_APP_API_URL}/courses/${id}`,
+        {
+          method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
       if (response.ok) {
         setCourses(courses.filter((crs) => crs._id !== id));
       } else {
-        setError('Failed to delete course');
+        toast.error("Failed to delete course");
       }
     } catch (error) {
-      console.error('Error deleting course:', error);
-      setError('Failed to delete course');
+      console.error("Error deleting course:", error);
+      toast.error("Failed to delete course");
     }
   };
 
   const handleEdit = (course) => {
     setSelectedCourse(course);
     setFormData({
-      title: course.title || '',
-      description: course.description || '',
+      title: course.title || "",
+      description: course.description || "",
       course_image: null,
     });
     setShowForm(true);
@@ -120,14 +135,13 @@ const CoursePage = () => {
 
   const handleAddNew = () => {
     setSelectedCourse(null);
-    setFormData({ title: '', description: '', course_image: null });
+    setFormData({ title: "", description: "", course_image: null });
     setShowForm(true);
   };
 
   return (
     <div className="container mx-auto p-4 mb-11">
       <h1 className="text-4xl text-darkGray font-bold mb-6">Courses</h1>
-      {error && <p className="text-red-500 mb-4">{error}</p>}
 
       {!showForm && (
         <button
@@ -141,11 +155,16 @@ const CoursePage = () => {
       {showForm && (
         <div className="bg-white p-6 rounded-lg shadow-md mb-6">
           <h2 className="text-2xl text-darkGray font-semibold mb-4">
-            {selectedCourse ? 'Edit Course' : 'Create Course'}
+            {selectedCourse ? "Edit Course" : "Create Course"}
           </h2>
-          <form onSubmit={selectedCourse ? handleUpdate : handleSubmit} encType="multipart/form-data">
+          <form
+            onSubmit={selectedCourse ? handleUpdate : handleSubmit}
+            encType="multipart/form-data"
+          >
             <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-700">Title</label>
+              <label className="block text-sm font-medium text-gray-700">
+                Title
+              </label>
               <input
                 type="text"
                 name="title"
@@ -156,7 +175,9 @@ const CoursePage = () => {
               />
             </div>
             <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-700">Description</label>
+              <label className="block text-sm font-medium text-gray-700">
+                Description
+              </label>
               <textarea
                 name="description"
                 value={formData.description}
@@ -167,7 +188,9 @@ const CoursePage = () => {
               ></textarea>
             </div>
             <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-700">Course Image</label>
+              <label className="block text-sm font-medium text-gray-700">
+                Course Image
+              </label>
               <input
                 type="file"
                 name="course_image"
@@ -180,7 +203,7 @@ const CoursePage = () => {
               type="submit"
               className="px-4 py-2 bg-darkGray text-white rounded-md hover:bg-gray-700"
             >
-              {selectedCourse ? 'Update' : 'Create'}
+              {selectedCourse ? "Update" : "Create"}
             </button>
             <button
               onClick={() => setShowForm(false)}
@@ -196,7 +219,9 @@ const CoursePage = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {courses.map((course) => (
             <div key={course._id} className="bg-white p-6 rounded-lg shadow-md">
-              <h3 className="text-xl text-darkGray font-semibold mb-2">{course?.title || 'No title'}</h3>
+              <h3 className="text-xl text-darkGray font-semibold mb-2">
+                {course?.title || "No title"}
+              </h3>
               {course.course_image && (
                 <img
                   src={`${process.env.REACT_APP_API_URL}/${course.course_image}`}
@@ -204,7 +229,9 @@ const CoursePage = () => {
                   className="mb-4 w-full h-auto rounded-md"
                 />
               )}
-              <p className="text-gray-600 mb-4">{course?.description || 'No description'}</p>
+              <p className="text-gray-600 mb-4">
+                {course?.description || "No description"}
+              </p>
 
               <button
                 onClick={() => handleEdit(course)}

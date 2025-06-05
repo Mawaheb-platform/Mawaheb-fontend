@@ -1,33 +1,40 @@
-
-import React, { useState, useEffect } from 'react';
-import { useSelector } from 'react-redux';
+import React, { useState, useEffect } from "react";
+import { useSelector } from "react-redux";
+import { toast } from "react-toastify";
 
 const FinancialReport = () => {
   const [financialReports, setFinancialReports] = useState([]);
-  const [formData, setFormData] = useState({ title: '', description: '', financial_report_image: null, date_of_report: '' });
+  const [formData, setFormData] = useState({
+    title: "",
+    description: "",
+    financial_report_image: null,
+    date_of_report: "",
+  });
   const [selectedReport, setSelectedReport] = useState(null);
   const [showForm, setShowForm] = useState(false);
   const token = useSelector((state) => state.auth.token);
-  const [error, setError] = useState(null);
 
   useEffect(() => {
-    const fetchCourses = async () => {
+    const fetchReports = async () => {
       try {
-        const response = await fetch(`${process.env.REACT_APP_API_URL}/financial-report`, {
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${token}`,
-          },
-        });
+        const response = await fetch(
+          `${process.env.REACT_APP_API_URL}/financial-report`,
+          {
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
         const data = await response.json();
         setFinancialReports(data);
       } catch (error) {
-        console.error('Error fetching courses:', error);
-        setError('Failed to load courses');
+        console.error("Error fetching courses:", error);
+        toast.error("Failed to load courses");
       }
     };
 
-    fetchCourses();
+    fetchReports();
   }, [token]);
 
   const handleInputChange = (e) => {
@@ -47,20 +54,24 @@ const FinancialReport = () => {
     });
 
     try {
-      const response = await fetch(`${process.env.REACT_APP_API_URL}/financial-report`, {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-        body: form,
-      });
+      const response = await fetch(
+        `${process.env.REACT_APP_API_URL}/financial-report`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          body: form,
+        }
+      );
       const data = await response.json();
-      setFinancialReports([...financialReports, data.course]);
-      setFormData({ title: '', description: '', financial_report_image: null });
+      console.log("response: ", data);
+      setFinancialReports([...financialReports, data.financialReport]);
+      setFormData({ title: "", description: "", financial_report_image: null });
       setShowForm(false);
     } catch (error) {
-      console.error('Error creating course:', error);
-      setError('Failed to create course');
+      console.error("Error creating financial report:", error);
+      toast.error("Failed to create financial report");
     }
   };
 
@@ -72,48 +83,58 @@ const FinancialReport = () => {
     });
 
     try {
-      const response = await fetch(`${process.env.REACT_APP_API_URL}/financial-report/${selectedReport._id}`, {
-        method: 'PUT',
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-        body: form,
-      });
+      const response = await fetch(
+        `${process.env.REACT_APP_API_URL}/financial-report/${selectedReport._id}`,
+        {
+          method: "PUT",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          body: form,
+        }
+      );
       const data = await response.json();
-      setFinancialReports(financialReports.map((crs) => (crs._id === data.course._id ? data.course : crs)));
-      setFormData({ title: '', description: '', financial_report_image: null });
+      setFinancialReports(
+        financialReports.map((crs) =>
+          crs._id === data.financialReport._id ? data.financialReport : crs
+        )
+      );
+      setFormData({ title: "", description: "", financial_report_image: null });
       setSelectedReport(null);
       setShowForm(false);
     } catch (error) {
-      console.error('Error updating course:', error);
-      setError('Failed to update course');
+      console.error("Error updating Financial report:", error);
+      toast.error("Failed to update Financial report");
     }
   };
 
   const handleDelete = async (id) => {
     try {
-      const response = await fetch(`${process.env.REACT_APP_API_URL}/financial-report/${id}`, {
-        method: 'DELETE',
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const response = await fetch(
+        `${process.env.REACT_APP_API_URL}/financial-report/${id}`,
+        {
+          method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
       if (response.ok) {
         setFinancialReports(financialReports.filter((crs) => crs._id !== id));
       } else {
-        setError('Failed to delete course');
+        toast.error("Failed to delete financial report");
       }
     } catch (error) {
-      console.error('Error deleting course:', error);
-      setError('Failed to delete course');
+      console.error("Error deleting financial report:", error);
+      toast.error("Failed to delete financial report");
     }
   };
 
-  const handleEdit = (course) => {
-    setSelectedReport(course);
+  const handleEdit = (report) => {
+    setSelectedReport(report);
     setFormData({
-      title: course.title || '',
-      description: course.description || '',
+      title: report.title || "",
+      description: report.description || "",
       financial_report_image: null,
     });
     setShowForm(true);
@@ -121,14 +142,15 @@ const FinancialReport = () => {
 
   const handleAddNew = () => {
     setSelectedReport(null);
-    setFormData({ title: '', description: '', financial_report_image: null });
+    setFormData({ title: "", description: "", financial_report_image: null });
     setShowForm(true);
   };
 
   return (
     <div className="container mx-auto p-4 mb-11">
-      <h1 className="text-4xl text-darkGray font-bold mb-6">Financial Reports</h1>
-      {error && <p className="text-red-500 mb-4">{error}</p>}
+      <h1 className="text-4xl text-darkGray font-bold mb-6">
+        Financial Reports
+      </h1>
 
       {!showForm && (
         <button
@@ -142,11 +164,18 @@ const FinancialReport = () => {
       {showForm && (
         <div className="bg-white p-6 rounded-lg shadow-md mb-6">
           <h2 className="text-2xl text-darkGray font-semibold mb-4">
-            {selectedReport ? 'Edit Course' : 'Create Course'}
+            {selectedReport
+              ? "Edit Financial Report"
+              : "Create Financial Report"}
           </h2>
-          <form onSubmit={selectedReport ? handleUpdate : handleSubmit} encType="multipart/form-data">
+          <form
+            onSubmit={selectedReport ? handleUpdate : handleSubmit}
+            encType="multipart/form-data"
+          >
             <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-700">Title</label>
+              <label className="block text-sm font-medium text-gray-700">
+                Title
+              </label>
               <input
                 type="text"
                 name="title"
@@ -157,7 +186,9 @@ const FinancialReport = () => {
               />
             </div>
             <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-700">Description</label>
+              <label className="block text-sm font-medium text-gray-700">
+                Description
+              </label>
               <textarea
                 name="description"
                 value={formData.description}
@@ -168,7 +199,9 @@ const FinancialReport = () => {
               ></textarea>
             </div>
             <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-700">Financial Report Image</label>
+              <label className="block text-sm font-medium text-gray-700">
+                Financial Report Image
+              </label>
               <input
                 type="file"
                 name="financial_report_image"
@@ -178,20 +211,22 @@ const FinancialReport = () => {
               />
             </div>
             <div className="mb-4">
-        <label className="block text-sm font-medium text-gray-700">Date of Report</label>
-        <input
-          type="date"
-          name="date_of_report"
-          value={formData.date_of_report}
-          onChange={handleInputChange}
-          className="mt-1 block w-full px-3 py-2 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50"
-        />
-      </div>
+              <label className="block text-sm font-medium text-gray-700">
+                Date of Report
+              </label>
+              <input
+                type="date"
+                name="date_of_report"
+                value={formData.date_of_report}
+                onChange={handleInputChange}
+                className="mt-1 block w-full px-3 py-2 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50"
+              />
+            </div>
             <button
               type="submit"
               className="px-4 py-2 bg-darkGray text-white rounded-md hover:bg-gray-700"
             >
-              {selectedReport ? 'Update' : 'Create'}
+              {selectedReport ? "Update" : "Create"}
             </button>
             <button
               onClick={() => setShowForm(false)}
@@ -205,25 +240,29 @@ const FinancialReport = () => {
 
       {Array.isArray(financialReports) && financialReports.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {financialReports.map((course) => (
-            <div key={course._id} className="bg-white p-6 rounded-lg shadow-md">
-              <h3 className="text-xl text-darkGray font-semibold mb-2">{course?.title || 'No title'}</h3>
-              <p className="text-gray-600 mb-4">{course?.description || 'No description'}</p>
-              {course.financial_report_image && (
+          {financialReports.map((report) => (
+            <div key={report._id} className="bg-white p-6 rounded-lg shadow-md">
+              <h3 className="text-xl text-darkGray font-semibold mb-2">
+                {report?.title || "No title"}
+              </h3>
+              <p className="text-gray-600 mb-4">
+                {report?.description || "No description"}
+              </p>
+              {report?.financial_report_image && (
                 <img
-                  src={`${process.env.REACT_APP_API_URL}/${course.financial_report_image}`}
-                  alt={course.title}
+                  src={`${process.env.REACT_APP_API_URL}/${report.financial_report_image}`}
+                  alt={report.title}
                   className="mb-4 w-full h-auto rounded-md"
                 />
               )}
               <button
-                onClick={() => handleEdit(course)}
+                onClick={() => handleEdit(report)}
                 className="mr-4 px-4 py-2 bg-gold text-white rounded-md hover:bg-mutedGold"
               >
                 Edit
               </button>
               <button
-                onClick={() => handleDelete(course._id)}
+                onClick={() => handleDelete(report._id)}
                 className="px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-700"
               >
                 Delete

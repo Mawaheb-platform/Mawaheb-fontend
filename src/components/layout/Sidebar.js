@@ -15,12 +15,13 @@ const Sidebar = ({ userType }) => {
     { to: "/student/certificates", label: "Certificates" },
     { to: "/student/difficulties", label: "Difficulties" },
     { to: "/student/financial-report", label: "Financial Report" },
-    { to: "/student/university-information", label: "University Information" },
     {
       to: "/student/scholarship-student-form",
       label: "Scholarship Student Information form",
     },
     { to: "/semester-list", label: "Semester List" },
+    { to: "/try-report", label: "Try Report" },
+    { to: "/try-report-list", label: "Try Report List" },
   ];
 
   return (

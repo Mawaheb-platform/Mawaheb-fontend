@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
+import { toast } from "react-toastify";
 
 const Certificate = () => {
   const [certificates, setCertificates] = useState([]);
@@ -12,7 +13,6 @@ const Certificate = () => {
   });
   const [selectedCertificate, setSelectedCertificate] = useState(null);
   const token = useSelector((state) => state.auth.token);
-  const [error, setError] = useState(null);
   const [imageErrors, setImageErrors] = useState({});
   const [showForm, setShowForm] = useState(false);
 
@@ -32,7 +32,7 @@ const Certificate = () => {
         setCertificates(data);
       } catch (error) {
         console.error("Error fetching certificates:", error);
-        setError("Failed to load certificates");
+        toast.error("Failed to load certificates");
       }
     };
 
@@ -76,7 +76,7 @@ const Certificate = () => {
       setShowForm(false);
     } catch (error) {
       console.error("Error creating certificate:", error);
-      setError("Failed to create certificate");
+      toast.error("Failed to create certificate");
     }
   };
 
@@ -116,7 +116,7 @@ const Certificate = () => {
       setShowForm(false);
     } catch (error) {
       console.error("Error updating certificate:", error);
-      setError("Failed to update certificate");
+      toast.error("Failed to update certificate");
     }
   };
 
@@ -134,11 +134,11 @@ const Certificate = () => {
       if (response.ok) {
         setCertificates(certificates.filter((cert) => cert._id !== id));
       } else {
-        setError("Failed to delete certificate");
+        toast.error("Failed to delete certificate");
       }
     } catch (error) {
       console.error("Error deleting certificate:", error);
-      setError("Failed to delete certificate");
+      toast.error("Failed to delete certificate");
     }
   };
 
@@ -173,7 +173,6 @@ const Certificate = () => {
   return (
     <div className="container mx-auto p-4 mb-11">
       <h1 className="text-4xl text-darkGray font-bold mb-6">Certificates</h1>
-      {error && <p className="text-red-500 mb-4">{error}</p>}
       <button
         onClick={handleAddNew}
         className="px-4 py-2 mb-6 bg-gold text-white rounded-md hover:bg-mutedGold"
@@ -252,7 +251,6 @@ const Certificate = () => {
           </form>
         </div>
       )}
-
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {certificates.map((certificate) => (
