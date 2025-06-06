@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useSelector } from "react-redux";
-import AllUsers from "./AllUsers"; 
-import StudentDetails from "./StudentDetails"; 
+import AllUsers from "./AllUsers";
+import StudentDetails from "./StudentDetails";
 
 const AdminDashboard = () => {
   const token = useSelector((state) => state.auth.token);
@@ -134,7 +134,8 @@ const AdminDashboard = () => {
         ) : users.length > 0 ? (
           <div>
             <h2 className="text-xl font-bold mb-2">
-              {categories.find((cat) => cat.value === selectedCategory)?.name} Summary
+              {categories.find((cat) => cat.value === selectedCategory)?.name}{" "}
+              Summary
             </h2>
             <ul className="space-y-4">
               {users.map((user) => (
@@ -154,7 +155,9 @@ const AdminDashboard = () => {
                   </div>
                   <div className="text-right">
                     <div className="inline-block px-3 py-1 text-sm font-semibold text-white bg-lightGold rounded-full">
-                      <p className="text-lg font-bold">{getCategoryCount(user)}</p>
+                      <p className="text-lg font-bold">
+                        {getCategoryCount(user)}
+                      </p>
                     </div>
                   </div>
                 </li>
